@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { userStore, unitsStore, referralsStore } from '$lib/stores';
   import type { LayoutProps } from './$types';
 
   let { data, children }: LayoutProps = $props();
@@ -14,6 +15,9 @@
 
   async function logout() {
     await fetch('/api/auth/logout', { method: 'POST' });
+    userStore.clear();
+    unitsStore.clear();
+    referralsStore.clear();
     goto('/');
   }
 </script>

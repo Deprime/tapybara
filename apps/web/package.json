@@ -21,6 +21,7 @@
     "vite": "^6.2.0"
   },
   "dependencies": {
-    "@capyberries/shared": "workspace:*"
+    "@capyberries/shared": "workspace:*",
+    "svelte-persisted-store": "^0.12.0"
   }
 }

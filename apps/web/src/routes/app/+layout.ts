@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+import { userStore } from '$lib/stores';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ fetch }) => {
@@ -10,5 +11,6 @@ export const load: LayoutLoad = async ({ fetch }) => {
     balance: number;
     balanceSol: number;
   };
+  userStore.set(user);
   return { user };
 };

@@ -1,35 +1,36 @@
 <script lang="ts">
   import type { Item } from '@capyberries/shared';
-
-  type Me = { id: number; username: string; balance: number; balanceSol: number };
-  type Unit = { id: number; level: number; rarity: string; status: string; balanceSol: number };
-
-  let me = $state<Me | null>(null);
-  let myUnits = $state<Unit[]>([]);
-  let authLoading = $state(true);
+  import { userStore, unitsStore, referralsStore, type UnitDto } from '$lib/stores';
 
   let items = $state<Item[]>([]);
   let title = $state('');
   let itemsError = $state<string | null>(null);
 
+  const me = $derived($userStore);
+  const myUnits = $derived<UnitDto[]>($unitsStore);
+
   async function loadMe() {
-    authLoading = true;
     try {
       const res = await fetch('/api/auth/me');
-      me = res.ok ? await res.json() : null;
-      myUnits = me
-        ? await fetch('/api/me/units').then((r) => (r.ok ? r.json() : []))
-        : [];
+      if (res.ok) {
+        userStore.set(await res.json());
+        const unitsRes = await fetch('/api/me/units');
+        unitsStore.set(unitsRes.ok ? await unitsRes.json() : []);
+      } else {
+        userStore.clear();
+        unitsStore.clear();
+      }
     } catch {
-      me = null;
+      userStore.clear();
+      unitsStore.clear();
     }
-    authLoading = false;
   }
 
   async function logout() {
     await fetch('/api/auth/logout', { method: 'POST' });
-    me = null;
-    myUnits = [];
+    userStore.clear();
+    unitsStore.clear();
+    referralsStore.clear();
   }
 
   async function loadItems() {
@@ -78,9 +79,7 @@
 <main class="mx-auto max-w-md p-8">
   <h1 class="mb-4 text-2xl font-bold">🦫 Capyberries</h1>
 
-  {#if authLoading}
-    <p class="text-gray-400">Загрузка…</p>
-  {:else if !me}
+  {#if me === null}
     <div class="rounded border p-4 text-center">
       <p class="mb-1 font-medium">Не авторизован</p>
       <p class="text-sm text-gray-500">
@@ -97,12 +96,6 @@
         <span>💰 Баланс: <b>{me.balance.toFixed(2)}</b></span>
         <span>🪙 SOL: <b>{me.balanceSol.toFixed(2)}</b></span>
       </div>
-      <a
-        href="/app/home"
-        class="mt-3 inline-block rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-      >
-        Перейти в приложение →
-      </a>
 
       <p class="mt-3 mb-1 text-sm font-medium text-gray-600">Юниты</p>
       {#if myUnits.length === 0}
@@ -114,6 +107,13 @@
           {/each}
         </ul>
       {/if}
+
+      <a
+        href="/app/home"
+        class="mt-3 inline-block rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+      >
+        Перейти в приложение →
+      </a>
     </section>
   {/if}
 
