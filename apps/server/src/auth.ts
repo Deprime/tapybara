@@ -2,6 +2,8 @@ import { createHash, randomBytes } from 'node:crypto';
 import { and, eq, gt, lt } from 'drizzle-orm';
 import { Hono, type Context } from 'hono';
 import { createMiddleware } from 'hono/factory';
+import { zValidator } from '@hono/zod-validator';
+import { z } from 'zod';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { db, authTokens, sessions, users, type User } from '@capyberries/db';
 import { userRepo } from './repo/userRepo';
@@ -153,17 +155,31 @@ export const authApi = new Hono()
     return c.json({ ok: true });
   });
 
+// Shared response shape for GET /api/me/units and POST .../collect:
+// the client needs level/rarity/exp/harvestAt to compute ready points
+// with the same shared formula the server validates clicks against.
+const listUnits = async (userId: number) => {
+  const rows = await unitRepo.getByUserId(userId);
+  return rows.map((u) => ({
+    id: u.id,
+    level: u.level,
+    rarity: u.rarity,
+    status: u.status,
+    exp: u.exp,
+    balanceSol: Number(u.balanceSol),
+    points: u.points,
+    harvestAt: u.harvestAt
+  }));
+};
+
 export const meApi = new Hono<SessionEnv>()
   .use('*', requireAuth)
-  .get('/units', async (c) => {
-    const rows = await unitRepo.getByUserId(c.get('user').id);
-    return c.json(
-      rows.map((u) => ({
-        id: u.id,
-        level: u.level,
-        rarity: u.rarity,
-        status: u.status,
-        balanceSol: Number(u.balanceSol),
-      }))
-    );
-  });
+  .get('/units', async (c) => c.json(await listUnits(c.get('user').id)))
+  .post(
+    '/units/:id/collect',
+    zValidator('json', z.object({ clicks: z.array(z.number().int().nonnegative()).max(1000) })),
+    async (c) => {
+      await unitRepo.collect(Number(c.req.param('id')), c.get('user').id, c.req.valid('json').clicks);
+      return c.json(await listUnits(c.get('user').id));
+    }
+  );

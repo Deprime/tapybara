@@ -85,3 +85,18 @@ export function getAccruedPoints(params: UnitParams, harvestAt: number, now: num
   const elapsedMinutes = Math.max(0, now - harvestAt) / 60;
   return Math.min(params.maxStack, Math.floor(elapsedMinutes / params.minutesPerPoint));
 }
+
+/** Whole seconds per point at this level (integer, same rounding on client and server). */
+export const getPeriodSeconds = (params: UnitParams) => Math.round(params.minutesPerPoint * 60);
+
+/**
+ * How many of the requested clicks are actually allowed right now.
+ * The single source of truth shared by the collect button and the server:
+ * the server clamps the same way, so extra clicks cannot bypass the accrual cap.
+ */
+export const getCollectableClicks = (
+  params: UnitParams,
+  harvestAt: number,
+  now: number,
+  requested: number
+): number => Math.min(requested, getAccruedPoints(params, harvestAt, now));
