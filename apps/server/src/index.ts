@@ -5,6 +5,7 @@ import { logger } from 'hono/logger';
 import { createBot, webhookCallback, botToken, webhookSecret, botCommands, WEBHOOK_PATH } from '@capyberries/bot';
 import { api } from './routes';
 import { authRouter, authApi, meApi, cleanupExpired } from './auth';
+import { mobileOnly } from './middlewares/mobileOnly';
 
 const app = new Hono();
 
@@ -14,6 +15,8 @@ app.use('/api/*', cors());
 app.route('/api', api);
 app.route('/api/auth', authApi);
 app.route('/api/me', meApi);
+// Before the auth handler: a desktop visit must not burn the one-time token.
+app.use('/auth', mobileOnly);
 app.route('/auth', authRouter);
 
 // Hourly sweep of expired login tokens and sessions.
@@ -37,7 +40,7 @@ if (token) {
 }
 
 // Serve the SvelteKit SPA build: real files first, then fallback to index.html.
-app.get('*', async (c) => {
+app.get('*', mobileOnly, async (c) => {
   const pathname = decodeURIComponent(new URL(c.req.url).pathname);
   let file = Bun.file(join(import.meta.dir, '../../web/build', pathname));
   if (!(await file.exists())) file = Bun.file(join(import.meta.dir, '../../web/build/index.html'));
