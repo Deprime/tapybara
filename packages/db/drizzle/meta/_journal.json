@@ -8,6 +8,13 @@
       "when": 1788341679701,
       "tag": "0000_flimsy_wonder_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1788345242736,
+      "tag": "0001_perfect_mysterio",
+      "breakpoints": true
     }
   ]
 }
