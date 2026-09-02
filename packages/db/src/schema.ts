@@ -81,6 +81,26 @@ export const referrals = mysqlTable(
   ]
 );
 
+// One-time login tokens issued by the bot (/login). Deleted right after
+// successful auth; expires_at drives the short TTL and expired-token cleanup.
+export const authTokens = mysqlTable(
+  'auth_tokens',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    token: varchar('token', { length: 64 }).notNull(),
+    expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex('auth_tokens_token_uq').on(t.token),
+    index('auth_tokens_user_id_idx').on(t.userId),
+    index('auth_tokens_expires_at_idx').on(t.expiresAt),
+  ]
+);
+
 export const items = mysqlTable('items', {
   id: int('id').autoincrement().primaryKey(),
   title: varchar('title', { length: 200 }).notNull(),
