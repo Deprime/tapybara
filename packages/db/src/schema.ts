@@ -102,6 +102,26 @@ export const authTokens = mysqlTable(
   ]
 );
 
+// Server-side sessions: the cookie carries a random sid, the DB stores only
+// its sha256 hash so a database leak cannot forge valid session cookies.
+export const sessions = mysqlTable(
+  'sessions',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
+    expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    uniqueIndex('sessions_token_hash_uq').on(t.tokenHash),
+    index('sessions_user_id_idx').on(t.userId),
+    index('sessions_expires_at_idx').on(t.expiresAt),
+  ]
+);
+
 export const items = mysqlTable('items', {
   id: int('id').autoincrement().primaryKey(),
   title: varchar('title', { length: 200 }).notNull(),

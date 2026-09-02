@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --hot src/index.ts",
-    "start": "bun src/index.ts"
+    "start": "bun src/index.ts",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@capyberries/bot": "workspace:*",
@@ -17,6 +18,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.5"
+    "@types/bun": "^1.2.5",
+    "typescript": "^5.7.3"
   }
 }

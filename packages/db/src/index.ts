@@ -16,3 +16,6 @@ export const dbReady = (async () => {
 })().catch(() => false);
 
 export * from './schema';
+
+export type User = typeof schema.users.$inferSelect;
+export type Unit = typeof schema.units.$inferSelect;
