@@ -97,6 +97,12 @@
         <span>💰 Баланс: <b>{me.balance.toFixed(2)}</b></span>
         <span>🪙 SOL: <b>{me.balanceSol.toFixed(2)}</b></span>
       </div>
+      <a
+        href="/app/home"
+        class="mt-3 inline-block rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+      >
+        Перейти в приложение →
+      </a>
 
       <p class="mt-3 mb-1 text-sm font-medium text-gray-600">Юниты</p>
       {#if myUnits.length === 0}
