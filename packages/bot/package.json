@@ -1,0 +1,20 @@
+{
+  "name": "@capyberries/bot",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "set-webhook": "bun src/set-webhook.ts"
+  },
+  "dependencies": {
+    "@capyberries/db": "workspace:*",
+    "drizzle-orm": "^0.39.3",
+    "grammy": "^1.32.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.5"
+  }
+}

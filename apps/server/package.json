@@ -5,20 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "bun --hot src/index.ts",
-    "start": "bun src/index.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "start": "bun src/index.ts"
   },
   "dependencies": {
+    "@capyberries/bot": "workspace:*",
+    "@capyberries/db": "workspace:*",
     "@capyberries/shared": "workspace:*",
     "@hono/zod-validator": "^0.4.3",
     "drizzle-orm": "^0.39.3",
     "hono": "^4.7.4",
-    "mysql2": "^3.14.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.5",
-    "drizzle-kit": "^0.30.5"
+    "@types/bun": "^1.2.5"
   }
 }

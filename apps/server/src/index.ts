@@ -2,8 +2,8 @@ import { join } from 'node:path';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { createBot, webhookCallback, botToken, webhookSecret, WEBHOOK_PATH } from '@capyberries/bot';
 import { api } from './routes';
-import { webBuildDir } from './db';
 
 const app = new Hono();
 
@@ -12,11 +12,27 @@ app.use('/api/*', cors());
 
 app.route('/api', api);
 
+// Telegram webhook: bot logic lives in @capyberries/bot, updates are delivered
+// by Telegram to WEBHOOK_PATH and verified via X-Telegram-Bot-Api-Secret-Token.
+const token = botToken();
+if (token) {
+  const bot = createBot(token);
+  app.post(WEBHOOK_PATH, webhookCallback(bot, 'hono', { secretToken: webhookSecret() }));
+  // grammY validates the token via getMe on the first update; warm it up at boot
+  // instead. Failures must not prevent the server from starting.
+  bot
+    .init()
+    .then(() => console.log('Telegram bot initialized'))
+    .catch((e) => console.warn(`Telegram bot init failed (webhook will keep retrying): ${e}`));
+} else {
+  console.warn('BOT_TOKEN is not set — Telegram webhook is disabled.');
+}
+
 // Serve the SvelteKit SPA build: real files first, then fallback to index.html.
 app.get('*', async (c) => {
   const pathname = decodeURIComponent(new URL(c.req.url).pathname);
-  let file = Bun.file(join(webBuildDir, pathname));
-  if (!(await file.exists())) file = Bun.file(join(webBuildDir, 'index.html'));
+  let file = Bun.file(join(import.meta.dir, '../../web/build', pathname));
+  if (!(await file.exists())) file = Bun.file(join(import.meta.dir, '../../web/build/index.html'));
   return c.body(file, {
     headers: { 'content-type': file.type || 'text/html; charset=utf-8' },
   });

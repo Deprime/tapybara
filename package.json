@@ -6,8 +6,9 @@
     "dev": "concurrently -n server,web -c blue,green \"bun run --filter '@capyberries/server' dev\" \"bun run --filter '@capyberries/web' dev\"",
     "build": "bun run --filter '@capyberries/web' build",
     "start": "bun run --filter '@capyberries/server' start",
-    "db:generate": "bun run --filter '@capyberries/server' db:generate",
-    "db:migrate": "bun run --filter '@capyberries/server' db:migrate"
+    "db:generate": "bun run --filter '@capyberries/db' db:generate",
+    "db:migrate": "bun run --filter '@capyberries/db' db:migrate",
+    "bot:set-webhook": "cd apps/server && bun ../../packages/bot/src/set-webhook.ts"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

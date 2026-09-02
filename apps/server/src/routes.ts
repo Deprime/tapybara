@@ -2,8 +2,7 @@ import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import { zValidator } from '@hono/zod-validator';
 import { createItemSchema, updateItemSchema, type Item } from '@capyberries/shared';
-import { db, dbReady } from './db';
-import { items } from './schema';
+import { db, dbReady, items } from '@capyberries/db';
 
 const toDto = (row: typeof items.$inferSelect): Item => ({
   id: row.id,
