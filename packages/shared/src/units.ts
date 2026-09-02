@@ -6,6 +6,14 @@ export type UnitRarity = (typeof UNIT_RARITIES)[number];
 
 export const MAX_UNIT_LEVEL = 5;
 
+/** Unit lifecycle: harvest (accruing) → pre_party (exp full, choosing) → party (level-up in progress). */
+export const UNIT_STATUSES = ['harvest', 'pre_party', 'party', 'staking'] as const;
+export type UnitStatus = (typeof UNIT_STATUSES)[number];
+
+/** Level-up process durations: 4h with a partner (invite link), 12h autonomous. */
+export const PARTY_DURATION_COOP_SECONDS = 4 * 60 * 60;
+export const PARTY_DURATION_SOLO_SECONDS = 12 * 60 * 60;
+
 /** Every click gives exactly +1 exp, regardless of rarity and level. */
 export const EXP_PER_CLICK = 1;
 
