@@ -3,7 +3,9 @@ import { and, eq, gt, lt } from 'drizzle-orm';
 import { Hono, type Context } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
-import { db, authTokens, sessions, units, users, type User } from '@capyberries/db';
+import { db, authTokens, sessions, users, type User } from '@capyberries/db';
+import { userRepo } from './repo/userRepo';
+import { unitRepo } from './repo/unitRepo';
 
 const now = () => Math.floor(Date.now() / 1000);
 
@@ -110,7 +112,7 @@ export const authRouter = new Hono().get('/', async (c) => {
       .where(and(eq(authTokens.id, tokenRow.id), gt(authTokens.expiresAt, now())));
     if (consumed.affectedRows === 0) return unauthorizedPage(c);
 
-    const [user] = await db.select().from(users).where(eq(users.id, tokenRow.userId)).limit(1);
+    const user = await userRepo.getById(tokenRow.userId);
     if (!user || user.blockedAt) return unauthorizedPage(c);
 
     const sid = await createSession(user.id);
@@ -151,11 +153,7 @@ export const authApi = new Hono()
 export const meApi = new Hono<SessionEnv>()
   .use('*', requireAuth)
   .get('/units', async (c) => {
-    const rows = await db
-      .select()
-      .from(units)
-      .where(eq(units.userId, c.get('user').id))
-      .orderBy(units.id);
+    const rows = await unitRepo.getByUserId(c.get('user').id);
     return c.json(
       rows.map((u) => ({
         id: u.id,

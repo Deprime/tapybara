@@ -19,3 +19,4 @@ export * from './schema';
 
 export type User = typeof schema.users.$inferSelect;
 export type Unit = typeof schema.units.$inferSelect;
+export type Referral = typeof schema.referrals.$inferSelect;
