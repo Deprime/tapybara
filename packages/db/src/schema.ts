@@ -104,6 +104,7 @@ export const authTokens = mysqlTable(
 
 // Server-side sessions: the cookie carries a random sid, the DB stores only
 // its sha256 hash so a database leak cannot forge valid session cookies.
+// user_id is UNIQUE: one active session per user — a new login replaces it.
 export const sessions = mysqlTable(
   'sessions',
   {
@@ -117,7 +118,7 @@ export const sessions = mysqlTable(
   },
   (t) => [
     uniqueIndex('sessions_token_hash_uq').on(t.tokenHash),
-    index('sessions_user_id_idx').on(t.userId),
+    uniqueIndex('sessions_user_id_uq').on(t.userId),
     index('sessions_expires_at_idx').on(t.expiresAt),
   ]
 );

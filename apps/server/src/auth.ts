@@ -22,12 +22,15 @@ const isHttps = (c: Context) =>
 
 export async function createSession(userId: number): Promise<string> {
   const sid = randomBytes(32).toString('base64url');
-  await db.insert(sessions).values({
+  const values = {
     userId,
     tokenHash: sha256(sid),
     createdAt: now(),
     expiresAt: now() + SESSION_TTL_SECONDS,
-  });
+  };
+  // Upsert: user_id is UNIQUE, so a new login atomically replaces the single
+  // existing session — the previous device's cookie stops resolving.
+  await db.insert(sessions).values(values).onDuplicateKeyUpdate({ set: values });
   return sid;
 }
 
