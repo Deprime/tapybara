@@ -23,12 +23,20 @@ type RaritySeeds = {
   maxStack: number;
 };
 
+/**
+ * maxStack seeds follow the rarity chain: each rarity's L1 = previous rarity's
+ * L5 (seed + 2 from level steps) + 1 for the new rarity, i.e. +3 per tier:
+ * base L5 = 7 → uncommon L1 = 8 → uncommon L5 = 10 → rare L1 = 11 → ...
+ *
+ * base expToNextLevel is the onboarding tune: full stack of 5 points × 1 exp
+ * per click × 4 visits = 20 exp → level 2.
+ */
 export const UNIT_SEEDS: Record<UnitRarity, RaritySeeds> = {
-  base: { minutesPerPoint: 20, rewardPerPoint: 0.01, expToNextLevel: 100, maxStack: 3 },
-  uncommon: { minutesPerPoint: 20, rewardPerPoint: 0.02, expToNextLevel: 150, maxStack: 4 },
-  rare: { minutesPerPoint: 20, rewardPerPoint: 0.04, expToNextLevel: 225, maxStack: 5 },
-  epic: { minutesPerPoint: 20, rewardPerPoint: 0.08, expToNextLevel: 340, maxStack: 6 },
-  legendary: { minutesPerPoint: 20, rewardPerPoint: 0.16, expToNextLevel: 500, maxStack: 7 }
+  base: { minutesPerPoint: 20, rewardPerPoint: 0.01, expToNextLevel: 20, maxStack: 5 },
+  uncommon: { minutesPerPoint: 20, rewardPerPoint: 0.02, expToNextLevel: 150, maxStack: 8 },
+  rare: { minutesPerPoint: 20, rewardPerPoint: 0.04, expToNextLevel: 225, maxStack: 11 },
+  epic: { minutesPerPoint: 20, rewardPerPoint: 0.08, expToNextLevel: 340, maxStack: 14 },
+  legendary: { minutesPerPoint: 20, rewardPerPoint: 0.16, expToNextLevel: 500, maxStack: 17 }
 };
 
 export type UnitParams = {
