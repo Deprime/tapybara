@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export * from './units';
+
 export const itemSchema = z.object({
   id: z.number().int().positive(),
   title: z.string().min(1).max(200),
