@@ -11,7 +11,7 @@ export const EXP_PER_CLICK = 1;
 
 /**
  * Level-1 seeds per rarity. Everything else is derived by getUnitParams:
- * - minutesPerPoint grows with level (a point takes longer, but pays more);
+ * - secondsPerPoint DROPS by 20s per level (higher levels accumulate faster);
  * - rewardPerPoint grows linearly with level and jumps with rarity;
  * - expToNextLevel doubles every level;
  * - maxStack gets +1 every 2 levels (on top of the rarity seed).
@@ -29,14 +29,15 @@ type RaritySeeds = {
  * base L5 = 7 → uncommon L1 = 8 → uncommon L5 = 10 → rare L1 = 11 → ...
  *
  * base expToNextLevel is the onboarding tune: full stack of 5 points × 1 exp
- * per click × 4 visits = 20 exp → level 2.
+ * per click × 4 visits = 20 exp → level 2. Upper rarities are tuned so that a
+ * player visiting ~4 times a day reaches legendary L5 in about 4 months.
  */
 export const UNIT_SEEDS: Record<UnitRarity, RaritySeeds> = {
   base: { minutesPerPoint: 20, rewardPerPoint: 0.01, expToNextLevel: 20, maxStack: 5 },
-  uncommon: { minutesPerPoint: 20, rewardPerPoint: 0.02, expToNextLevel: 150, maxStack: 8 },
-  rare: { minutesPerPoint: 20, rewardPerPoint: 0.04, expToNextLevel: 225, maxStack: 11 },
-  epic: { minutesPerPoint: 20, rewardPerPoint: 0.08, expToNextLevel: 340, maxStack: 14 },
-  legendary: { minutesPerPoint: 20, rewardPerPoint: 0.16, expToNextLevel: 500, maxStack: 17 }
+  uncommon: { minutesPerPoint: 20, rewardPerPoint: 0.02, expToNextLevel: 50, maxStack: 8 },
+  rare: { minutesPerPoint: 20, rewardPerPoint: 0.04, expToNextLevel: 75, maxStack: 11 },
+  epic: { minutesPerPoint: 20, rewardPerPoint: 0.08, expToNextLevel: 110, maxStack: 14 },
+  legendary: { minutesPerPoint: 20, rewardPerPoint: 0.16, expToNextLevel: 160, maxStack: 17 }
 };
 
 export type UnitParams = {
@@ -60,7 +61,8 @@ export function getUnitParams(rarity: UnitRarity, level: number): UnitParams {
   return {
     rarity,
     level: lvl,
-    minutesPerPoint: seeds.minutesPerPoint * (1 + 0.25 * (lvl - 1)),
+    // 20 minutes at L1, minus 20 seconds per level: 20:00 → 19:40 → … → 18:40
+    minutesPerPoint: (seeds.minutesPerPoint * 60 - 20 * (lvl - 1)) / 60,
     rewardPerPoint: Math.round(seeds.rewardPerPoint * lvl * 100) / 100,
     maxStack: seeds.maxStack + Math.floor((lvl - 1) / 2),
     expToNextLevel: isMax ? null : Math.round(seeds.expToNextLevel * 2 ** (lvl - 1))
