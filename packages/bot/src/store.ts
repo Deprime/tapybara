@@ -42,10 +42,22 @@ export const registerUser = async (
 
   const username = telegramUsername || faker.internet.username();
   try {
-    const [row] = await db
-      .insert(users)
-      .values({ telegramId, username, uuid: randomUUID(), createdAt: now(), updatedAt: now() });
-    const [created] = await db.select().from(users).where(eq(users.id, row.insertId));
+    const ts = now();
+    const { insertId } = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(users)
+        .values({ telegramId, username, uuid: randomUUID(), createdAt: ts, updatedAt: ts });
+      // Every new player starts with a level-1 base unit. harvest_at stays 0
+      // (schema default) so the first visit already has a full stack to click.
+      await tx.insert(units).values({
+        uuid: randomUUID(),
+        userId: row.insertId,
+        createdAt: ts,
+        updatedAt: ts
+      });
+      return row;
+    });
+    const [created] = await db.select().from(users).where(eq(users.id, insertId));
     return { user: created, created: true };
   } catch {
     return { user: (await findUserByTelegramId(telegramId))!, created: false };
