@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { createBot, webhookCallback, botToken, webhookSecret, WEBHOOK_PATH } from '@capyberries/bot';
+import { createBot, webhookCallback, botToken, webhookSecret, botCommands, WEBHOOK_PATH } from '@capyberries/bot';
 import { api } from './routes';
 
 const app = new Hono();
@@ -22,6 +22,7 @@ if (token) {
   // instead. Failures must not prevent the server from starting.
   bot
     .init()
+    .then(() => bot.api.setMyCommands(botCommands))
     .then(() => console.log('Telegram bot initialized'))
     .catch((e) => console.warn(`Telegram bot init failed (webhook will keep retrying): ${e}`));
 } else {

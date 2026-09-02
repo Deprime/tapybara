@@ -56,7 +56,7 @@ bun bot:set-webhook
 
 Если `api.telegram.org` недоступен с вашей машины напрямую, укажите http(s)-прокси в `TELEGRAM_PROXY_URL` — и сервер, и `bot:set-webhook` будут ходить в Telegram через него (Bun `fetch` поддерживает per-request proxy).
 
-Команды бота: `/start`, `/items`, `/add <текст>`, `/done <id>`.
+Команды бота: `/start` (регистрация; реферальная ссылка `https://t.me/<bot>?start=<uuid>`), `/login` (одноразовая ссылка для входа на сайт, действует `AUTH_TOKEN_TTL_SECONDS` сек.), `/balance` (балансы пользователя и юнитов).
 
 ## API
 

@@ -9,6 +9,7 @@ import {
   timestamp,
   uniqueIndex,
   varchar,
+  type AnyMySqlColumn,
 } from 'drizzle-orm/mysql-core';
 
 // All timestamps are unix time (seconds) stored as BIGINT.
@@ -17,7 +18,7 @@ export const users = mysqlTable(
   'users',
   {
     id: int('id').autoincrement().primaryKey(),
-    parentId: int('parent_id').references(() => users.id),
+    parentId: int('parent_id').references((): AnyMySqlColumn => users.id),
     telegramId: bigint('telegram_id', { mode: 'number' }).notNull(),
     uuid: varchar('uuid', { length: 36 }).notNull(),
     username: varchar('username', { length: 64 }).notNull(),

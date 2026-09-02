@@ -1,6 +1,22 @@
 import { Bot } from 'grammy';
-import { eq } from 'drizzle-orm';
-import { db, items } from '@capyberries/db';
+import {
+  findUserByTelegramId,
+  registerUser,
+  applyReferral,
+  issueAuthToken,
+  getUserUnits,
+  type User,
+} from './store';
+
+export const AUTH_TOKEN_TTL_SECONDS = Number(process.env.AUTH_TOKEN_TTL_SECONDS ?? 600);
+
+const siteUrl = () => (process.env.SITE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+
+export const botCommands = [
+  { command: 'start', description: 'Запуск / регистрация' },
+  { command: 'login', description: 'Ссылка для входа на сайт' },
+  { command: 'balance', description: 'Баланс и юниты' },
+];
 
 export const createBot = (token: string) => {
   // Bun's fetch accepts a per-request proxy — lets local dev reach api.telegram.org
@@ -12,45 +28,59 @@ export const createBot = (token: string) => {
     console.error('Bot error:', err.error);
   });
 
-  bot.command('start', (ctx) =>
-    ctx.reply(
-      'Привет! Я бот Capyberries 🦫\n\n' +
-        '/items — список пунктов\n' +
-        '/add <текст> — добавить пункт\n' +
-        '/done <id> — отметить выполненным'
-    )
-  );
+  const requireUser = async (fromId: number | undefined): Promise<User | null> => {
+    if (!fromId) return null;
+    const user = await findUserByTelegramId(fromId);
+    if (!user || user.blockedAt) return null;
+    return user;
+  };
 
-  bot.command('items', async (ctx) => {
-    const rows = await db.select().from(items).orderBy(items.id).limit(20);
-    if (rows.length === 0) {
-      await ctx.reply('Список пуст. Добавьте что-нибудь через /add <текст>.');
+  bot.command('start', async (ctx) => {
+    if (!ctx.from) return;
+    const { user, created } = await registerUser(ctx.from.id, ctx.from.username ?? null);
+
+    // /start <referrer_uuid> — the deep link from https://t.me/<bot>?start=<uuid>
+    let referred = false;
+    const payload = ctx.match.trim();
+    if (created && payload) {
+      referred = await applyReferral(user.id, payload);
+    }
+
+    await ctx.reply(
+      `Привет, ${user.username}! 🦫` +
+        (referred ? '\nВы вошли по реферальной ссылке — приглашённый пользователь.' : '') +
+        '\n\n/login — ссылка для входа на сайт\n/balance — баланс и юниты'
+    );
+  });
+
+  bot.command('login', async (ctx) => {
+    const user = await requireUser(ctx.from?.id);
+    if (!user) {
+      await ctx.reply('Сначала запустите бота командой /start.');
       return;
     }
-    const list = rows
-      .map((r) => `${r.done ? '✅' : '⬜'} ${r.id}. ${r.title}`)
+    const token = await issueAuthToken(user.id, AUTH_TOKEN_TTL_SECONDS);
+    const minutes = Math.round(AUTH_TOKEN_TTL_SECONDS / 60);
+    await ctx.reply(
+      `Ваша ссылка для входа (одноразовая, действует ${minutes} мин.):\n${siteUrl()}/?token=${token}`
+    );
+  });
+
+  bot.command('balance', async (ctx) => {
+    const user = await requireUser(ctx.from?.id);
+    if (!user) {
+      await ctx.reply('Сначала запустите бота командой /start.');
+      return;
+    }
+    const unitRows = await getUserUnits(user.id);
+    const unitLines = unitRows
+      .map((u) => `#${u.id} — ${Number(u.balanceSol).toFixed(2)} SOL`)
       .join('\n');
-    await ctx.reply(list);
-  });
-
-  bot.command('add', async (ctx) => {
-    const title = ctx.match.trim();
-    if (!title) {
-      await ctx.reply('Использование: /add <текст>');
-      return;
-    }
-    const [row] = await db.insert(items).values({ title });
-    await ctx.reply(`Добавил: ${title} (id=${row.insertId})`);
-  });
-
-  bot.command('done', async (ctx) => {
-    const id = Number(ctx.match.trim());
-    if (!Number.isInteger(id) || id <= 0) {
-      await ctx.reply('Использование: /done <id>');
-      return;
-    }
-    const [row] = await db.update(items).set({ done: true }).where(eq(items.id, id));
-    await ctx.reply(row.affectedRows > 0 ? `Отметил выполненным: ${id}` : `Не нашёл пункт ${id}`);
+    await ctx.reply(
+      `💰 Баланс: ${Number(user.balance).toFixed(2)}\n` +
+        `🪙 SOL: ${Number(user.balanceSol).toFixed(2)}\n\n` +
+        `Юниты:\n${unitLines || 'Юнитов нет'}`
+    );
   });
 
   return bot;

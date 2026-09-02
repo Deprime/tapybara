@@ -1,6 +1,8 @@
 // Run via `bun bot:set-webhook`. Tells Telegram where to send updates:
 //   BOT_WEBHOOK_URL=https://appdomain.com  (no trailing slash)
 // The secret must match TELEGRAM_WEBHOOK_SECRET used by the server.
+export {};
+
 const token = process.env.BOT_TOKEN;
 const baseUrl = process.env.BOT_WEBHOOK_URL;
 const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -11,7 +13,6 @@ if (!token || !baseUrl || !secret) {
 }
 
 const url = `${baseUrl.replace(/\/$/, '')}/api/telegram/webhook`;
-
 const proxy = process.env.TELEGRAM_PROXY_URL;
 
 const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
