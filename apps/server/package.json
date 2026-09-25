@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/index.ts",
+    "dev": "DEV_LOGIN=true bun --hot src/index.ts",
+    "dev:session": "bun src/scripts/devSession.ts",
     "start": "bun src/index.ts",
     "check": "tsc --noEmit"
   },

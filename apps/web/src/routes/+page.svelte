@@ -14,7 +14,7 @@
       const res = await fetch('/api/auth/me');
       if (res.ok) {
         userStore.set(await res.json());
-        const unitsRes = await fetch('/api/me/units');
+        const unitsRes = await fetch('/api/units');
         unitsStore.set(unitsRes.ok ? await unitsRes.json() : []);
       } else {
         userStore.clear();
