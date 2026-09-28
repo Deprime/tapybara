@@ -79,7 +79,7 @@ test.skipIf(process.env.MYSQL_INTEGRATION !== '1')(
       ]);
       for (const [column, value, code] of [
         ['skin_uuid', null, 'ER_BAD_NULL_ERROR'],
-        ['skin_uuid', 's'.repeat(29), 'ER_DATA_TOO_LONG'],
+        ['skin_uuid', 's'.repeat(37), 'ER_DATA_TOO_LONG'],
         ['name', null, 'ER_BAD_NULL_ERROR'],
         ['name', 'n'.repeat(21), 'ER_DATA_TOO_LONG']
       ] as const) {
@@ -116,7 +116,10 @@ test.skipIf(process.env.MYSQL_INTEGRATION !== '1')(
       const { user } = await registerUser(456, 'test-user');
       const [unit] = await getUserUnits(user.id);
       expect(unit.name).toBe(`Капибара #${unit.id}`);
-      expect(unit.skinUuid).toBe('');
+      expect(unit.rarity).toBe('base');
+      const { SKINS } = await import('@capyberries/shared');
+      const baseSkinIds = SKINS.filter((s) => s.rarity === 'base').map((s) => s.id);
+      expect(baseSkinIds).toContain(unit.skinUuid);
       expect(await inactivityRepo.due(Number.MAX_SAFE_INTEGER, 0)).toEqual([]);
       const token = await issueAuthToken(user.id, 600);
       const login = await app.request(`/auth?token=${token}`);

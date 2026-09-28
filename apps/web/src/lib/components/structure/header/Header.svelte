@@ -4,7 +4,7 @@
 </script>
 
 <header
-  class="flex h-(--header-height) w-full items-center justify-between px-4 ring-1 ring-slate-200"
+  class="flex h-(--header-height) w-full shrink-0 items-center justify-between px-4 ring-1 ring-slate-200"
 >
   <div class="flex items-center gap-2">
     <figure class="size-10 rounded-full bg-amber-100">

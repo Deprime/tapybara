@@ -1,0 +1,1 @@
+ALTER TABLE `units` MODIFY COLUMN `skin_uuid` varchar(36) NOT NULL DEFAULT '';

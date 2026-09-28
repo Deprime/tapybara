@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export * from './units';
 export * from './alerts';
+export * from './skins';
 
 export const itemSchema = z.object({
   id: z.number().int().positive(),

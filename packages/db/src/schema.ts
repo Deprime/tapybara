@@ -46,7 +46,7 @@ export const units = mysqlTable(
   {
     id: int('id').autoincrement().primaryKey(),
     uuid: varchar('uuid', { length: 36 }).notNull(),
-    skinUuid: varchar('skin_uuid', { length: 28 }).notNull().default(''),
+    skinUuid: varchar('skin_uuid', { length: 36 }).notNull().default(''),
     name: varchar('name', { length: 20 }).notNull(),
     userId: int('user_id')
       .notNull()

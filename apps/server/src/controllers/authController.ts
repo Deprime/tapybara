@@ -5,6 +5,7 @@ import { resolveSession, deleteSessionBySid, SESSION_COOKIE } from '../helpers/s
 import { requireAuth, type SessionEnv } from '../middlewares/requireAuth';
 import { inactivityRepo } from '../repo/inactivityRepo';
 import { getUnixTimestamp } from '../helpers/datetime';
+import { getUserRole } from '../helpers/roles';
 
 const authController = new Hono<SessionEnv>();
 
@@ -12,7 +13,8 @@ const meDto = (user: User) => ({
   id: user.id,
   username: user.username,
   balance: Number(user.balance),
-  balanceSol: Number(user.balanceSol)
+  balanceSol: Number(user.balanceSol),
+  role: getUserRole(user)
 });
 
 /** Current session user; no valid session → 401. */

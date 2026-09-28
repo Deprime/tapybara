@@ -64,6 +64,13 @@
       "when": 1790591932810,
       "tag": "0008_sticky_cerise",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1790609146567,
+      "tag": "0009_foamy_hitman",
+      "breakpoints": true
     }
   ]
 }

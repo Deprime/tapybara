@@ -2,6 +2,10 @@ import { eq } from 'drizzle-orm';
 import { db, users, type User } from '@capyberries/db';
 
 export const userRepo = {
+  list(): Promise<User[]> {
+    return db.select().from(users).orderBy(users.id);
+  },
+
   getById(id: number): Promise<User | null> {
     return db
       .select()

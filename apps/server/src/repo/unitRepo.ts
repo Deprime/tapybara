@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { db, units, type Unit } from '@capyberries/db';
@@ -9,6 +10,33 @@ import {
 } from '@capyberries/shared';
 
 export const unitRepo = {
+  /**
+   * Create a fresh level-1 base unit (the admin "+ капибара" action). Mirrors
+   * the bot's registration flow: the name is finalized to `Капибара #<unit id>`
+   * right after the insert; harvest_at keeps the 0 schema default so the first
+   * visit already has a full stack to click.
+   */
+  async createForUser(userId: number, skinUuid: string): Promise<Unit> {
+    const ts = Math.floor(Date.now() / 1000);
+    const { id } = await db.transaction(async (tx) => {
+      const [row] = await tx.insert(units).values({
+        uuid: randomUUID(),
+        name: 'Капибара',
+        userId,
+        skinUuid,
+        rarity: 'base',
+        createdAt: ts,
+        updatedAt: ts
+      });
+      await tx
+        .update(units)
+        .set({ name: `Капибара #${row.insertId}` })
+        .where(eq(units.id, row.insertId));
+      return { id: row.insertId };
+    });
+    return (await this.getById(id))!;
+  },
+
   getByUserId(userId: number): Promise<Unit[]> {
     return db.select().from(units).where(eq(units.userId, userId)).orderBy(units.id);
   },

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@capyberries/db": "workspace:*",
+    "@capyberries/shared": "workspace:*",
     "@faker-js/faker": "^9.6.0",
     "drizzle-orm": "^0.39.3",
     "grammy": "^1.32.1"

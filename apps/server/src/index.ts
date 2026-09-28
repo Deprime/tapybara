@@ -9,6 +9,7 @@ import authController from './controllers/authController';
 import unitsController from './controllers/unitsController';
 import referralsController from './controllers/referralsController';
 import alertsController from './controllers/alertsController';
+import managerController from './controllers/managerController';
 import authPageController from './controllers/authPageController';
 import spaController from './controllers/spaController';
 import { createTelegramController } from './controllers/telegramController';
@@ -27,6 +28,7 @@ app.route(`${API_PREFIX}/auth`, authController);
 app.route(`${API_PREFIX}/units`, unitsController);
 app.route(`${API_PREFIX}/referrals`, referralsController);
 app.route(`${API_PREFIX}/alerts`, alertsController);
+app.route(`${API_PREFIX}/manager`, managerController);
 app.route('/auth', authPageController);
 
 // Hourly sweep of expired login tokens and sessions.
