@@ -26,6 +26,8 @@ export const users = mysqlTable(
     balance: decimal('balance', { precision: 12, scale: 2 }).notNull().default('0'),
     balanceSol: decimal('balance_sol', { precision: 12, scale: 2 }).notNull().default('0'),
     walletUsdt: varchar('wallet_usdt', { length: 128 }),
+    lastSeenAt: bigint('last_seen_at', { mode: 'number' }),
+    inactivityReminderAt: bigint('inactivity_reminder_at', { mode: 'number' }),
     createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
     updatedAt: bigint('updated_at', { mode: 'number' }).notNull().default(0),
     blockedAt: bigint('blocked_at', { mode: 'number' }),
@@ -34,7 +36,8 @@ export const users = mysqlTable(
   (t) => [
     uniqueIndex('users_telegram_id_uq').on(t.telegramId),
     uniqueIndex('users_uuid_uq').on(t.uuid),
-    index('users_parent_id_idx').on(t.parentId)
+    index('users_parent_id_idx').on(t.parentId),
+    index('users_inactivity_idx').on(t.inactivityReminderAt, t.lastSeenAt)
   ]
 );
 
@@ -43,6 +46,8 @@ export const units = mysqlTable(
   {
     id: int('id').autoincrement().primaryKey(),
     uuid: varchar('uuid', { length: 36 }).notNull(),
+    skinUuid: varchar('skin_uuid', { length: 28 }).notNull().default(''),
+    name: varchar('name', { length: 20 }).notNull(),
     userId: int('user_id')
       .notNull()
       .references(() => users.id),

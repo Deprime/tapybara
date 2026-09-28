@@ -26,7 +26,7 @@ const devLogin = async (c: Context) => {
 // production): without this the developer cannot get past pageAuth locally,
 // since /login links come from the Telegram bot.
 export const mountDevLogin = (controller: Hono) => {
-  if (process.env.DEV_LOGIN !== 'true') return;
+  if (process.env.DEV_LOGIN !== 'true' || process.env.NODE_ENV === 'production') return;
   console.warn('DEV_LOGIN: GET /auth/dev-login will create a session for the local dev user');
   controller.get('/dev-login', devLogin);
 };

@@ -49,18 +49,25 @@ export const registerUser = async (
         .values({ telegramId, username, uuid: randomUUID(), createdAt: ts, updatedAt: ts });
       // Every new player starts with a level-1 base unit. harvest_at stays 0
       // (schema default) so the first visit already has a full stack to click.
-      await tx.insert(units).values({
+      const [unit] = await tx.insert(units).values({
         uuid: randomUUID(),
+        name: 'Капибара',
         userId: row.insertId,
         createdAt: ts,
         updatedAt: ts
       });
+      await tx
+        .update(units)
+        .set({ name: `Капибара #${unit.insertId}` })
+        .where(eq(units.id, unit.insertId));
       return row;
     });
     const [created] = await db.select().from(users).where(eq(users.id, insertId));
     return { user: created, created: true };
-  } catch {
-    return { user: (await findUserByTelegramId(telegramId))!, created: false };
+  } catch (error) {
+    const user = await findUserByTelegramId(telegramId);
+    if (!user) throw error;
+    return { user, created: false };
   }
 };
 

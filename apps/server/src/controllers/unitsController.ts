@@ -15,6 +15,7 @@ const listUnits = async (userId: number) => {
   const rows = await unitRepo.getByUserId(userId);
   return rows.map((u) => ({
     id: u.id,
+    name: u.name,
     level: u.level,
     rarity: u.rarity,
     status: u.status,

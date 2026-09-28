@@ -6,6 +6,7 @@ const PREFIX = '/api/units';
 /** Unit row as returned by GET /api/units and POST /:id/collect. */
 export type UnitListItem = {
   id: number;
+  name: string;
   level: number;
   rarity: UnitRarity;
   status: UnitStatus;

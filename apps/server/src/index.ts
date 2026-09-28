@@ -12,6 +12,8 @@ import alertsController from './controllers/alertsController';
 import authPageController from './controllers/authPageController';
 import spaController from './controllers/spaController';
 import { createTelegramController } from './controllers/telegramController';
+import { createTelegramSender } from './helpers/telegram';
+import { startInactivityReminders } from './jobs/inactivityReminders';
 
 const app = new Hono();
 const API_PREFIX = '/api';
@@ -36,9 +38,14 @@ setInterval(
 // Telegram webhook: bot logic lives in @capyberries/bot, updates are delivered
 // by Telegram to WEBHOOK_PATH and verified via X-Telegram-Bot-Api-Secret-Token.
 const token = botToken();
+// Bun hot reload re-evaluates this entry point; retire the previous timer first.
+const runtime = globalThis as typeof globalThis & { stopInactivityReminders?: () => Promise<void> };
+await runtime.stopInactivityReminders?.();
+runtime.stopInactivityReminders = undefined;
 if (token) {
   const bot = createBot(token);
   app.route('/', createTelegramController(bot));
+  runtime.stopInactivityReminders = startInactivityReminders(createTelegramSender(bot.api));
   // grammY validates the token via getMe on the first update; warm it up at boot
   // instead. Failures must not prevent the server from starting.
   bot

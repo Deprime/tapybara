@@ -20,7 +20,7 @@
       {#each $unitsStore as u (u.id)}
         <li class="flex items-center justify-between rounded border p-3 text-sm">
           <span>
-            <b>#{u.id}</b> · {u.rarity} · lvl {u.level}
+            <b>{u.name}</b> · {u.rarity} · lvl {u.level}
             <span class="text-gray-400">({u.status})</span>
           </span>
           <span class="font-medium">{u.balanceSol.toFixed(2)} SOL</span>

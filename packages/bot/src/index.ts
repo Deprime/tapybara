@@ -1,6 +1,6 @@
 import { createBot } from './bot';
 
-export { webhookCallback } from 'grammy';
+export { webhookCallback, GrammyError } from 'grammy';
 export { botCommands } from './bot';
 
 export const WEBHOOK_PATH = '/api/telegram/webhook';

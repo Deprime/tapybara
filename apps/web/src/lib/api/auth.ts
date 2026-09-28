@@ -4,6 +4,8 @@ import type { SessionResponse } from '$lib/types/auth';
 const PREFIX = '/api/auth';
 
 const authApi = {
+  visit: () => http.post(`${PREFIX}/visit`, { retry: 0 }),
+
   /**
    * Current session user; throws HTTPError 401 without a valid session
    */
