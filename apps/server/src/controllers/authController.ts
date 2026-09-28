@@ -9,7 +9,7 @@ const meDto = (user: User) => ({
   id: user.id,
   username: user.username,
   balance: Number(user.balance),
-  balanceSol: Number(user.balanceSol),
+  balanceSol: Number(user.balanceSol)
 });
 
 /** Current session user; no valid session → 401. */

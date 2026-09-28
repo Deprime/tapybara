@@ -4,12 +4,13 @@ import {
   decimal,
   index,
   int,
+  json,
   mysqlEnum,
   mysqlTable,
   timestamp,
   uniqueIndex,
   varchar,
-  type AnyMySqlColumn,
+  type AnyMySqlColumn
 } from 'drizzle-orm/mysql-core';
 
 // All timestamps are unix time (seconds) stored as BIGINT.
@@ -28,12 +29,12 @@ export const users = mysqlTable(
     createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
     updatedAt: bigint('updated_at', { mode: 'number' }).notNull().default(0),
     blockedAt: bigint('blocked_at', { mode: 'number' }),
-    blockReason: varchar('block_reason', { length: 255 }),
+    blockReason: varchar('block_reason', { length: 255 })
   },
   (t) => [
     uniqueIndex('users_telegram_id_uq').on(t.telegramId),
     uniqueIndex('users_uuid_uq').on(t.uuid),
-    index('users_parent_id_idx').on(t.parentId),
+    index('users_parent_id_idx').on(t.parentId)
   ]
 );
 
@@ -58,7 +59,7 @@ export const units = mysqlTable(
     generation: int('generation').notNull().default(0),
     harvestAt: bigint('harvest_at', { mode: 'number' }).notNull().default(0),
     createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
-    updatedAt: bigint('updated_at', { mode: 'number' }).notNull().default(0),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull().default(0)
   },
   (t) => [uniqueIndex('units_uuid_uq').on(t.uuid), index('units_user_id_idx').on(t.userId)]
 );
@@ -74,11 +75,11 @@ export const referrals = mysqlTable(
       .notNull()
       .references(() => users.id),
     createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
-    claimedAt: bigint('claimed_at', { mode: 'number' }).notNull().default(0),
+    claimedAt: bigint('claimed_at', { mode: 'number' }).notNull().default(0)
   },
   (t) => [
     uniqueIndex('referrals_referee_id_uq').on(t.refereeId),
-    index('referrals_referrer_id_idx').on(t.referrerId),
+    index('referrals_referrer_id_idx').on(t.referrerId)
   ]
 );
 
@@ -93,12 +94,12 @@ export const authTokens = mysqlTable(
       .references(() => users.id),
     token: varchar('token', { length: 64 }).notNull(),
     expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
-    createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0)
   },
   (t) => [
     uniqueIndex('auth_tokens_token_uq').on(t.token),
     index('auth_tokens_user_id_idx').on(t.userId),
-    index('auth_tokens_expires_at_idx').on(t.expiresAt),
+    index('auth_tokens_expires_at_idx').on(t.expiresAt)
   ]
 );
 
@@ -114,18 +115,43 @@ export const sessions = mysqlTable(
       .references(() => users.id),
     tokenHash: varchar('token_hash', { length: 64 }).notNull(),
     createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
-    expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
+    expiresAt: bigint('expires_at', { mode: 'number' }).notNull()
   },
   (t) => [
     uniqueIndex('sessions_token_hash_uq').on(t.tokenHash),
     uniqueIndex('sessions_user_id_uq').on(t.userId),
-    index('sessions_expires_at_idx').on(t.expiresAt),
+    index('sessions_expires_at_idx').on(t.expiresAt)
   ]
+);
+
+// Messages shown to a user (referral events etc.); rewards are free-form JSON,
+// claiming only stamps claimed_at — crediting is a future feature.
+export const alerts = mysqlTable(
+  'alerts',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    typeId: mysqlEnum('type_id', [
+      'parent_referral',
+      'child_referral',
+      'friend_registered'
+    ]).notNull(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    metadata: json('metadata'),
+    rewards: json('rewards'),
+    title: varchar('title', { length: 200 }),
+    description: varchar('description', { length: 1000 }),
+    claimedAt: bigint('claimed_at', { mode: 'number' }),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull().default(0),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull().default(0)
+  },
+  (t) => [index('alerts_user_id_idx').on(t.userId)]
 );
 
 export const items = mysqlTable('items', {
   id: int('id').autoincrement().primaryKey(),
   title: varchar('title', { length: 200 }).notNull(),
   done: boolean('done').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().defaultNow()
 });

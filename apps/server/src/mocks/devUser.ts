@@ -19,7 +19,7 @@ export const ensureDevUser = async (): Promise<User> => {
       uuid: DEV_UUID,
       username: DEV_USERNAME,
       createdAt: ts,
-      updatedAt: ts,
+      updatedAt: ts
     });
     [user] = await db.select().from(users).where(eq(users.username, DEV_USERNAME)).limit(1);
   } else if (user.telegramId !== DEV_TELEGRAM_ID || user.uuid !== DEV_UUID) {

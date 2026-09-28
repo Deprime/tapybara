@@ -1,0 +1,18 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+# Build output
+apps/web/build/
+apps/web/.svelte-kit/
+dist/
+
+# Static assets
+apps/web/static/
+
+# Generated files
+packages/db/drizzle/
+apps/web/src/lib/types/svg-icons.d.ts

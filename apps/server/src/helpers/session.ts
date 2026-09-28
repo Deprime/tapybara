@@ -12,8 +12,8 @@ export async function createSession(userId: number): Promise<string> {
   const values = {
     userId,
     tokenHash: sha256(sid),
-      createdAt: getUnixTimestamp(),
-    expiresAt: getUnixTimestamp() + SESSION_TTL_SECONDS,
+    createdAt: getUnixTimestamp(),
+    expiresAt: getUnixTimestamp() + SESSION_TTL_SECONDS
   };
   // Upsert: user_id is UNIQUE, so a new login atomically replaces the single
   // existing session — the previous device's cookie stops resolving.

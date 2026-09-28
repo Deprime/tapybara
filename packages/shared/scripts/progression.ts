@@ -71,9 +71,12 @@ console.log('Сценарий                        | до legendary L5 | кл�
 for (const [name, interval] of scenarios) {
   const r = simulate(interval);
   console.log(
-    name.padEnd(31), '|',
-    (Math.round(r.days) + ' дн').padStart(11), '|',
-    String(r.clicks).padStart(7), '|',
+    name.padEnd(31),
+    '|',
+    (Math.round(r.days) + ' дн').padStart(11),
+    '|',
+    String(r.clicks).padStart(7),
+    '|',
     r.sol.toFixed(2).padStart(10)
   );
 }
@@ -81,6 +84,8 @@ for (const [name, interval] of scenarios) {
 // Endgame income at legendary L5: production is 1 point per 40 min = 36/day;
 // two visits a day already collect it all (18 x 2 < stack 19), one visit caps at 19.
 const p5 = getUnitParams('legendary', 5);
-const full = (24 * 60 / p5.minutesPerPoint) * p5.rewardPerPoint;
+const full = ((24 * 60) / p5.minutesPerPoint) * p5.rewardPerPoint;
 const once = Math.min(p5.maxStack, Math.floor(1440 / p5.minutesPerPoint)) * p5.rewardPerPoint;
-console.log(`legendary L5 доход: ${full.toFixed(2)} SOL/день (2+ входа), ${once.toFixed(2)} SOL/день (1 вход)`);
+console.log(
+  `legendary L5 доход: ${full.toFixed(2)} SOL/день (2+ входа), ${once.toFixed(2)} SOL/день (1 вход)`
+);

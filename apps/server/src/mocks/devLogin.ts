@@ -17,7 +17,7 @@ const devLogin = async (c: Context) => {
     httpOnly: true,
     sameSite: 'Lax',
     secure: isHttps(c),
-    maxAge: SESSION_TTL_SECONDS,
+    maxAge: SESSION_TTL_SECONDS
   });
   return c.redirect('/');
 };

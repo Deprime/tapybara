@@ -10,7 +10,7 @@ const toDto = (row: typeof items.$inferSelect): Item => ({
   id: row.id,
   title: row.title,
   done: row.done,
-  createdAt: row.createdAt.toISOString(),
+  createdAt: row.createdAt.toISOString()
 });
 
 /** Demo list of items. */

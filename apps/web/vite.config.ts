@@ -29,13 +29,14 @@ function devAuthGate(): Plugin {
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.method !== 'GET' || !(req.headers.accept ?? '').includes('text/html')) return next();
+        if (req.method !== 'GET' || !(req.headers.accept ?? '').includes('text/html'))
+          return next();
         const path = req.url ?? '/';
         if (Object.keys(proxy).some((prefix) => path.startsWith(prefix))) return next();
         let authorized: boolean;
         try {
           const r = await fetch(new URL('/api/auth/me', apiOrigin), {
-            headers: { cookie: req.headers.cookie ?? '' },
+            headers: { cookie: req.headers.cookie ?? '' }
           });
           authorized = r.status === 200;
         } catch {
@@ -49,7 +50,7 @@ function devAuthGate(): Plugin {
         res.setHeader('content-type', 'text/html; charset=utf-8');
         res.end(unauthorizedPageHtml);
       });
-    },
+    }
   };
 }
 

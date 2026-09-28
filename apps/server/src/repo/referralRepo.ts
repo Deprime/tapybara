@@ -32,10 +32,10 @@ export const referralRepo = {
         createdAt: referrals.createdAt,
         claimedAt: referrals.claimedAt,
         refereeUsername: users.username,
-        refereeTelegramId: users.telegramId,
+        refereeTelegramId: users.telegramId
       })
       .from(referrals)
       .innerJoin(users, eq(referrals.refereeId, users.id))
       .where(eq(referrals.referrerId, referrerId));
-  },
+  }
 };

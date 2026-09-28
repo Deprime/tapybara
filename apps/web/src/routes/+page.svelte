@@ -1,33 +1,22 @@
 <script lang="ts">
   import type { Item } from '@capyberries/shared';
-  import { userStore, unitsStore, referralsStore, type UnitDto } from '$lib/stores';
+  import userStore from '$lib/stores/user';
+  import unitsStore from '$lib/stores/units';
+  import referralsStore from '$lib/stores/referrals';
+  import authApi from '$lib/api/auth';
+  import itemsApi from '$lib/api/items';
+
+  import { UButton } from '$lib/components/ui';
 
   let items = $state<Item[]>([]);
   let title = $state('');
   let itemsError = $state<string | null>(null);
 
   const me = $derived($userStore);
-  const myUnits = $derived<UnitDto[]>($unitsStore);
-
-  async function loadMe() {
-    try {
-      const res = await fetch('/api/auth/me');
-      if (res.ok) {
-        userStore.set(await res.json());
-        const unitsRes = await fetch('/api/units');
-        unitsStore.set(unitsRes.ok ? await unitsRes.json() : []);
-      } else {
-        userStore.clear();
-        unitsStore.clear();
-      }
-    } catch {
-      userStore.clear();
-      unitsStore.clear();
-    }
-  }
+  const myUnits = $derived($unitsStore);
 
   async function logout() {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await authApi.logout().catch(() => {});
     userStore.clear();
     unitsStore.clear();
     referralsStore.clear();
@@ -36,7 +25,7 @@
   async function loadItems() {
     itemsError = null;
     try {
-      items = await fetch('/api/items').then((r) => r.json());
+      items = await itemsApi.list();
     } catch {
       itemsError = 'Не удалось загрузить демо-список (нет соединения с API).';
     }
@@ -45,30 +34,21 @@
   async function add(e: SubmitEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    await fetch('/api/items', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ title: title.trim() })
-    });
+    await itemsApi.create({ title: title.trim() });
     title = '';
     await loadItems();
   }
 
   async function toggle(item: Item) {
-    await fetch(`/api/items/${item.id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ done: !item.done })
-    });
+    await itemsApi.update(item.id, { done: !item.done });
     await loadItems();
   }
 
   async function remove(item: Item) {
-    await fetch(`/api/items/${item.id}`, { method: 'DELETE' });
+    await itemsApi.remove(item.id);
     await loadItems();
   }
 
-  loadMe();
   loadItems();
 </script>
 
@@ -76,22 +56,21 @@
   <title>Capyberries</title>
 </svelte:head>
 
-<main class="mx-auto max-w-md p-8">
-  <h1 class="mb-4 text-2xl font-bold">🦫 Capyberries</h1>
+<main class="mx-auto max-w-md p-4">
+  <h3 class="h1">🦫 Capyberries</h3>
+  <h3 class="h2">🦫 Capyberries</h3>
+  <h3 class="h3">🦫 Capyberries</h3>
+  <h3 class="h4">🦫 Capyberries</h3>
+  <h3 class="h5">🦫 Capyberries</h3>
 
-  {#if me === null}
-    <div class="rounded border p-4 text-center">
-      <p class="mb-1 font-medium">Не авторизован</p>
-      <p class="text-sm text-gray-500">
-        Войдите через Telegram-бота: отправьте ему команду <code>/login</code> и перейдите по ссылке.
-      </p>
-    </div>
-  {:else}
-    <section class="mb-8 rounded border p-4">
+  {#if me}
+    <section class="mt-6 mb-8 rounded border p-4">
       <div class="mb-2 flex items-center justify-between">
         <p class="font-medium">{me.username}</p>
         <button class="text-sm text-red-500 hover:underline" onclick={logout}>Выйти</button>
       </div>
+
+      <p class="text-xl">😒1</p>
       <div class="flex gap-4 text-sm">
         <span>💰 Баланс: <b>{me.balance.toFixed(2)}</b></span>
         <span>🪙 SOL: <b>{me.balanceSol.toFixed(2)}</b></span>
@@ -103,18 +82,27 @@
       {:else}
         <ul class="space-y-1 text-sm">
           {#each myUnits as u (u.id)}
-            <li>#{u.id} · {u.rarity} · lvl {u.level} · {u.status} — {u.balanceSol.toFixed(2)} SOL</li>
+            <li>
+              #{u.id} · {u.rarity} · lvl {u.level} · {u.status} — {u.balanceSol.toFixed(2)} SOL
+            </li>
           {/each}
         </ul>
       {/if}
 
-      <a
-        href="/app/home"
-        class="mt-3 inline-block rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-      >
-        Перейти в приложение →
-      </a>
+      <footer class="flex items-center gap-2">
+        <UButton size="sm">Claim</UButton>
+        <UButton size="md">Claim</UButton>
+        <UButton size="lg">Claim</UButton>
+      </footer>
+
+      <footer class="flex items-center gap-2">
+        <UButton size="sm" variant="secondary">Claim</UButton>
+        <UButton size="md" variant="secondary">Claim</UButton>
+        <UButton size="lg" variant="secondary">Claim</UButton>
+      </footer>
     </section>
+  {:else}
+    <p class="mt-6 mb-8 text-sm text-gray-500">Не авторизован — войдите через бота.</p>
   {/if}
 
   <section>
@@ -135,8 +123,9 @@
         {#each items as item (item.id)}
           <li class="flex items-center gap-2 rounded border p-2">
             <input type="checkbox" checked={item.done} onchange={() => toggle(item)} />
-            <span class="flex-1 {item.done ? 'line-through text-gray-400' : ''}">{item.title}</span>
-            <button class="text-red-500" onclick={() => remove(item)} aria-label="Удалить">✕</button>
+            <span class="flex-1 {item.done ? 'text-gray-400 line-through' : ''}">{item.title}</span>
+            <button class="text-red-500" onclick={() => remove(item)} aria-label="Удалить">✕</button
+            >
           </li>
         {/each}
       </ul>

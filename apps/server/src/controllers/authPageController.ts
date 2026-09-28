@@ -46,7 +46,7 @@ authPageController.get('/', async (c) => {
       httpOnly: true,
       sameSite: 'Lax',
       secure: isHttps(c),
-      maxAge: SESSION_TTL_SECONDS,
+      maxAge: SESSION_TTL_SECONDS
     });
     return c.redirect('/');
   } catch (e) {

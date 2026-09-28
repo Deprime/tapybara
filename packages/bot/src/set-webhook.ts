@@ -19,7 +19,7 @@ const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
   body: JSON.stringify({ url, secret_token: secret, drop_pending_updates: true }),
-  ...(proxy && { proxy }),
+  ...(proxy && { proxy })
 });
 
 console.log(await res.json());

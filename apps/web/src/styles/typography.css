@@ -1,0 +1,47 @@
+.ff-primary {
+  font-family: 'Montserrat', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+}
+
+.ff-secondary {
+  font-family: 'Geologica', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+  font-variation-settings:
+    'slnt' 0,
+    'CRSV' 0,
+    'SHRP' 0;
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  @apply font-secondary;
+  @apply font-semibold;
+}
+
+.h1 {
+  @apply text-3xl/snug;
+}
+
+.h2 {
+  @apply text-2xl/snug;
+}
+
+.h3 {
+  @apply text-xl/snug;
+}
+
+.h4 {
+  @apply text-lg/snug;
+}
+
+.h5 {
+  @apply text-base/snug;
+}

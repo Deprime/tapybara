@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Fonts */
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Geologica', sans-serif;
+
+  /* Heights */
+  --footer-height: 80px;
+  --header-height: 60px;
+
+  --text-xxs: 11px;
+  --text-xxs--line-height: 13px;
+
+  --font-sans: 'Montserrat', sans-serif, 'Apple Color Emoji', 'Noto Color Emoji';
+}

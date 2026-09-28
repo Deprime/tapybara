@@ -1,7 +1,10 @@
 {
   "name": "capyberries",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "concurrently -n server,web -c blue,green \"bun run --filter @capyberries/server dev\" \"bun run --filter @capyberries/web dev\"",
     "build": "bun run --filter @capyberries/web build",
@@ -9,9 +12,14 @@
     "dev:session": "bun run --filter @capyberries/server dev:session",
     "db:generate": "bun run --filter @capyberries/db db:generate",
     "db:migrate": "bun run --filter @capyberries/db db:migrate",
-    "bot:set-webhook": "cd apps/server && bun ../../packages/bot/src/set-webhook.ts"
+    "bot:set-webhook": "cd apps/server && bun ../../packages/bot/src/set-webhook.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "concurrently": "^9.2.4"
+    "concurrently": "^9.2.4",
+    "prettier": "^3.9.9",
+    "prettier-plugin-svelte": "^4.1.1",
+    "prettier-plugin-tailwindcss": "^0.8.1"
   }
 }

@@ -1,0 +1,35 @@
+.ui-loader {
+  animation: spinner 0.7s infinite linear;
+  @apply rounded-full;
+}
+
+.ui-loader--variant-green {
+  @apply border-green-300/20 border-r-green-300;
+}
+
+.ui-loader--variant-black {
+  @apply border-black/30 border-r-black/90;
+}
+
+.ui-loader--variant-white {
+  @apply border-white/30 border-r-white/90;
+}
+
+/* Sizes */
+.ui-loader--size-sm {
+  @apply size-5 border-3;
+}
+
+.ui-loader--size-md {
+  @apply size-10 border-4;
+}
+
+.ui-loader--size-lg {
+  @apply size-16 border-5;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(1turn);
+  }
+}

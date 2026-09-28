@@ -130,14 +130,20 @@ const scenarios: Array<[string, number, number]> = [
   ['кооп 4ч · оптимально (20 мин)', 20, COOP_MIN]
 ];
 
-console.log('Сценарий                          | до legendary L5 | кликов  | SOL     | макс. кликов/вход');
+console.log(
+  'Сценарий                          | до legendary L5 | кликов  | SOL     | макс. кликов/вход'
+);
 for (const [name, interval, party] of scenarios) {
   const r = simulate(interval, party);
   console.log(
     name.padEnd(32),
-    '|', (Math.round(r.days) + ' дн').padStart(11),
-    '|', String(r.clicks).padStart(7),
-    '|', r.sol.toFixed(2).padStart(7),
-    '|', String(r.maxVisitClicks).padStart(6)
+    '|',
+    (Math.round(r.days) + ' дн').padStart(11),
+    '|',
+    String(r.clicks).padStart(7),
+    '|',
+    r.sol.toFixed(2).padStart(7),
+    '|',
+    String(r.maxVisitClicks).padStart(6)
   );
 }

@@ -11,9 +11,10 @@ const spaController = new Hono();
 spaController.get('*', mobileOnly, pageAuth, async (c) => {
   const pathname = decodeURIComponent(new URL(c.req.url).pathname);
   let file = Bun.file(join(import.meta.dir, '../../../web/build', pathname));
-  if (!(await file.exists())) file = Bun.file(join(import.meta.dir, '../../../web/build/index.html'));
+  if (!(await file.exists()))
+    file = Bun.file(join(import.meta.dir, '../../../web/build/index.html'));
   return new Response(file, {
-    headers: { 'content-type': file.type || 'text/html; charset=utf-8' },
+    headers: { 'content-type': file.type || 'text/html; charset=utf-8' }
   });
 });
 

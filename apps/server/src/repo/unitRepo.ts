@@ -1,7 +1,12 @@
 import { and, eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { db, units, type Unit } from '@capyberries/db';
-import { EXP_PER_CLICK, getCollectableClicks, getPeriodSeconds, getUnitParams } from '@capyberries/shared';
+import {
+  EXP_PER_CLICK,
+  getCollectableClicks,
+  getPeriodSeconds,
+  getUnitParams
+} from '@capyberries/shared';
 
 export const unitRepo = {
   getByUserId(userId: number): Promise<Unit[]> {
@@ -9,7 +14,12 @@ export const unitRepo = {
   },
 
   getById(id: number): Promise<Unit | null> {
-    return db.select().from(units).where(eq(units.id, id)).limit(1).then(([row]) => row ?? null);
+    return db
+      .select()
+      .from(units)
+      .where(eq(units.id, id))
+      .limit(1)
+      .then(([row]) => row ?? null);
   },
 
   /** Fetch a unit while asserting it belongs to the given owner. */
@@ -41,7 +51,7 @@ export const unitRepo = {
       harvestAt: unit.harvestAt + allowed * getPeriodSeconds(params),
       balanceSol: (Number(unit.balanceSol) + allowed * params.rewardPerPoint).toFixed(2),
       points: unit.points + allowed,
-      updatedAt: now,
+      updatedAt: now
     };
     if (params.expToNextLevel !== null) {
       const exp = Math.min(unit.exp + allowed * EXP_PER_CLICK, params.expToNextLevel);
@@ -53,5 +63,5 @@ export const unitRepo = {
       }
     }
     await db.update(units).set(patch).where(eq(units.id, unit.id));
-  },
+  }
 };

@@ -5,7 +5,7 @@ import {
   applyReferral,
   issueAuthToken,
   getUserUnits,
-  type User,
+  type User
 } from './store';
 
 export const AUTH_TOKEN_TTL_SECONDS = Number(process.env.AUTH_TOKEN_TTL_SECONDS ?? 600);
@@ -15,7 +15,7 @@ const siteUrl = () => (process.env.SITE_URL ?? 'http://localhost:5173').replace(
 export const botCommands = [
   { command: 'start', description: 'Запуск / регистрация' },
   { command: 'login', description: 'Ссылка для входа на сайт' },
-  { command: 'balance', description: 'Баланс и юниты' },
+  { command: 'balance', description: 'Баланс и юниты' }
 ];
 
 export const createBot = (token: string) => {
