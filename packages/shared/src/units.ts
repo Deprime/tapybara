@@ -100,3 +100,23 @@ export const getCollectableClicks = (
   now: number,
   requested: number
 ): number => Math.min(requested, getAccruedPoints(params, harvest_at, now));
+
+/**
+ * harvest_at after `collected` points are clicked off the stack.
+ * The stack remainder (accrued - collected) and the fractional progress
+ * toward the next point both survive; only the time earned beyond the cap is
+ * discarded. A plain `harvest_at + collected * period` is correct only while
+ * the stack is uncapped — for a capped stack it would let the excess elapsed
+ * time instantly refill the stack after harvest.
+ */
+export function getNextHarvestAt(
+  params: UnitParams,
+  harvest_at: number,
+  now: number,
+  collected: number
+): number {
+  const period = getPeriodSeconds(params);
+  const accrued = getAccruedPoints(params, harvest_at, now);
+  const remainder = Math.max(0, now - harvest_at) % period;
+  return now - remainder - (accrued - collected) * period;
+}

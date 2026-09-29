@@ -40,6 +40,7 @@
         "@svelte-put/movable": "^4.1.0",
         "clsx": "^2.1.1",
         "dayjs": "^1.11.23",
+        "embla-carousel": "^8.6.0",
         "embla-carousel-svelte": "^8.6.0",
         "js-cookie": "^3.0.8",
         "ky": "^2.1.0",
@@ -93,6 +94,7 @@
       "name": "@capyberries/shared",
       "version": "0.0.1",
       "dependencies": {
+        "@faker-js/faker": "^9.6.0",
         "zod": "^3.24.2",
       },
     },

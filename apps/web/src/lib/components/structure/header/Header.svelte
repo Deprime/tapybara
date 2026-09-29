@@ -1,6 +1,14 @@
 <script lang="ts">
   // import { page } from '$app/state';
   import userStore from '$lib/stores/user';
+  import unitsStore from '$lib/stores/units';
+
+  let totalBalance = $derived.by(() => {
+    if (!$userStore) return 0;
+    const result =
+      $unitsStore.reduce((acc, unit) => acc + (unit.balance_sol ?? 0), 0) + $userStore.balance_sol;
+    return result.toFixed(2);
+  });
 </script>
 
 <header
@@ -21,7 +29,7 @@
       <div class="flex items-center gap-1 rounded-full bg-amber-200 py-1 pr-3 pl-2">
         <img src="/solberry.png" alt="Solana" class="size-6 object-contain" />
         <span class="font-secondary text-sm font-bold text-amber-700">
-          {$userStore.balance_sol}
+          {totalBalance}
         </span>
       </div>
     {/if}

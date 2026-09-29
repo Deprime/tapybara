@@ -2,7 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import { and, eq, gt } from 'drizzle-orm';
 import { db, users, referrals, authTokens, units } from '@capyberries/db';
-import { getRandomSkinId } from '@capyberries/shared';
+import { generateUnitName, getRandomSkinId } from '@capyberries/shared';
 
 const now = () => Math.floor(Date.now() / 1000);
 
@@ -49,21 +49,17 @@ export const registerUser = async (
         .insert(users)
         .values({ telegram_id, username, uuid: randomUUID(), created_at: ts, updated_at: ts });
       // Every new player starts with a level-1 base unit wearing a random
-      // base skin. harvest_at stays 0 (schema default) so the first visit
-      // already has a full stack to click.
-      const [unit] = await tx.insert(units).values({
+      // base skin and a generated name. harvest_at stays 0 (schema default)
+      // so the first visit already has a full stack to click.
+      await tx.insert(units).values({
         uuid: randomUUID(),
-        name: 'Капибара',
+        name: generateUnitName(),
         user_id: row.insertId,
         skin_uuid: getRandomSkinId('base') ?? '',
         rarity: 'base',
         created_at: ts,
         updated_at: ts
       });
-      await tx
-        .update(units)
-        .set({ name: `Капибара #${unit.insertId}` })
-        .where(eq(units.id, unit.insertId));
       return row;
     });
     const [created] = await db.select().from(users).where(eq(users.id, insertId));

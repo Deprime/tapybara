@@ -4,37 +4,31 @@ import { HTTPException } from 'hono/http-exception';
 import { db, units, type Unit } from '@capyberries/db';
 import {
   EXP_PER_CLICK,
+  generateUnitName,
   getCollectableClicks,
-  getPeriodSeconds,
+  getNextHarvestAt,
   getUnitParams
 } from '@capyberries/shared';
 
 export const unitRepo = {
   /**
    * Create a fresh level-1 base unit (the admin "+ капибара" action). Mirrors
-   * the bot's registration flow: the name is finalized to `Капибара #<unit id>`
-   * right after the insert; harvest_at keeps the 0 schema default so the first
-   * visit already has a full stack to click.
+   * the bot's registration flow: the name comes from the shared generator;
+   * harvest_at keeps the 0 schema default so the first visit already has a
+   * full stack to click.
    */
   async createForUser(user_id: number, skin_uuid: string): Promise<Unit> {
     const ts = Math.floor(Date.now() / 1000);
-    const { id } = await db.transaction(async (tx) => {
-      const [row] = await tx.insert(units).values({
-        uuid: randomUUID(),
-        name: 'Капибара',
-        user_id,
-        skin_uuid,
-        rarity: 'base',
-        created_at: ts,
-        updated_at: ts
-      });
-      await tx
-        .update(units)
-        .set({ name: `Капибара #${row.insertId}` })
-        .where(eq(units.id, row.insertId));
-      return { id: row.insertId };
+    const [row] = await db.insert(units).values({
+      uuid: randomUUID(),
+      name: generateUnitName(),
+      user_id,
+      skin_uuid,
+      rarity: 'base',
+      created_at: ts,
+      updated_at: ts
     });
-    return (await this.getById(id))!;
+    return (await this.getById(row.insertId))!;
   },
 
   getByUserId(user_id: number): Promise<Unit[]> {
@@ -76,7 +70,7 @@ export const unitRepo = {
     if (allowed <= 0) throw new HTTPException(400, { message: 'no points ready' });
 
     const patch: Partial<typeof units.$inferInsert> = {
-      harvest_at: unit.harvest_at + allowed * getPeriodSeconds(params),
+      harvest_at: getNextHarvestAt(params, unit.harvest_at, now, allowed),
       balance_sol: (Number(unit.balance_sol) + allowed * params.reward_per_point).toFixed(2),
       points: unit.points + allowed,
       updated_at: now

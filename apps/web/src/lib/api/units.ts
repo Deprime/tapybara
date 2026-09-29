@@ -18,13 +18,19 @@ export type UnitListItem = {
   harvest_at: number;
 };
 
+/**
+ * The DB decimal column arrives as a string — coerce to the declared number.
+ */
+const normalize = (units: UnitListItem[]): UnitListItem[] =>
+  units.map((unit) => ({ ...unit, balance_sol: Number(unit.balance_sol) }));
+
 const unitsApi = {
   /**
    * Units of the current session user
    */
   list: () => {
     const url = `${PREFIX}`;
-    return http.get(url).json<UnitListItem[]>();
+    return http.get(url).json<UnitListItem[]>().then(normalize);
   },
 
   /**
@@ -32,7 +38,7 @@ const unitsApi = {
    */
   collect: (unit_id: number, clicks: number[]) => {
     const url = `${PREFIX}/${unit_id}/collect`;
-    return http.post(url, { json: { clicks } }).json<UnitListItem[]>();
+    return http.post(url, { json: { clicks } }).json<UnitListItem[]>().then(normalize);
   }
 };
 

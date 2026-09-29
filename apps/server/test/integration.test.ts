@@ -115,7 +115,8 @@ test.skipIf(process.env.MYSQL_INTEGRATION !== '1')(
 
       const { user } = await registerUser(456, 'test-user');
       const [unit] = await getUserUnits(user.id);
-      expect(unit.name).toBe(`Капибара #${unit.id}`);
+      expect(unit.name).toMatch(/^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$/);
+      expect(unit.name.length).toBeLessThanOrEqual(20);
       expect(unit.rarity).toBe('base');
       const { SKINS } = await import('@capyberries/shared');
       const baseSkinIds = SKINS.filter((s) => s.rarity === 'base').map((s) => s.id);
