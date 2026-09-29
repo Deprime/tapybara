@@ -13,7 +13,6 @@ export type UnitListItem = {
   status: UnitStatus;
   exp: number;
   balance_sol: number;
-  points: number;
   /** Unix seconds of the last harvest. */
   harvest_at: number;
 };

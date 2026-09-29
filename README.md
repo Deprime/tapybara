@@ -4,11 +4,11 @@
 
 ## Структура
 
-- `apps/web` — SvelteKit в режиме SPA (`adapter-static`, без SSR). В dev — Vite на :5173 с прокси `/api` на сервер.
+- `apps/web` — SvelteKit в режиме SPA (`adapter-static`, без SSR). В dev — Vite на :5173 с прокси `/api` и `/auth` на сервер.
 - `apps/server` — Hono на Bun (:3000). Единственная точка входа: отдаёт REST API (`/api/*`), webhook бота (`/api/telegram/webhook`) и собранный фронт из `apps/web/build` (SPA-fallback на `index.html`) — статика отдаётся только авторизованным сессиям.
-- `packages/bot` — grammY-бот: команды над таблицей `items`. Монтируется в Hono, работает в режиме webhook-only.
+- `packages/bot` — grammY-бот: команды `/start` (запуск/регистрация), `/login` (ссылка для входа на сайт), `/balance` (баланс и юниты). Монтируется в Hono, работает в режиме webhook-only.
 - `packages/db` — Drizzle ORM (MySQL): схема, клиент, миграции. Общая для API и бота.
-- `packages/shared` — Zod-схемы API-контрактов, общие для фронта и бэка.
+- `packages/shared` — Zod-схемы API-контрактов, игровые вычисления и каталог скинов, общие для фронта и бэка.
 
 ## Запуск
 
@@ -100,4 +100,9 @@ curl -H "Cookie: sid=<sid>" http://localhost:3000/api/units
 
 - `GET /api/health` — статус сервера и БД
 - `GET /api/items`, `POST /api/items`, `PATCH /api/items/:id`, `DELETE /api/items/:id`
+- `GET /api/auth/me`, `POST /api/auth/visit`, `POST /api/auth/logout`
+- `GET /api/units`, `POST /api/units/:id/collect`
+- `GET /api/referrals`
+- `GET /api/alerts`, `POST /api/alerts/:id/claim`
+- `GET /api/manager/skins`, `GET /api/manager/users`, `POST /api/manager/users/:id/units` — только для админов
 - `POST /api/telegram/webhook` — только для Telegram (защищён секретом)

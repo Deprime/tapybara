@@ -10,18 +10,20 @@ Backend-карта: [../server/README.md](../server/README.md).
 | `src/routes/+layout.ts`              | Загрузка `/api/auth/me` и `/api/units`, заполнение stores и редирект на `/home`                                         |
 | `src/routes/+layout.svelte`          | Глобальные стили, loading screen, регистрация посещения при mount/visibilitychange                                      |
 | `src/routes/+page.svelte`            | Корневая страница                                                                                                       |
-| `src/routes/(app)/`                  | Общий layout приложения и страницы home, friends, profile                                                               |
-| `src/routes/(app)/home/+page.svelte` | Список капибар: имя, редкость, уровень, статус, SOL-баланс                                                              |
-| `src/lib/api/`                       | Клиенты auth, units, referrals, items, health; ручные API-типы находятся рядом                                          |
+| `src/routes/(app)/`                  | Общий layout приложения и страницы home, friends, profile, manage (админские skins и users)                             |
+| `src/routes/(app)/home/+page.svelte` | Рендер `HomeView`: скин, редкость, уровень, статус, SOL-баланс, сбор кликов                                             |
+| `src/lib/modules/home/`              | View и компоненты главного экрана: слайды капибар (UnitSlide), HomeView                                                 |
+| `src/lib/api/`                       | Клиенты auth, units, referrals, items, health, manager; ручные API-типы находятся рядом                                 |
 | `src/lib/config/http.ts`             | Общий ky-клиент с cookie credentials                                                                                    |
 | `src/lib/config/app.ts`              | Конфигурация приложения                                                                                                 |
 | `src/lib/stores/`                    | Состояние пользователя, капибар и рефералов; persisted stores не заменяют серверную авторизацию                         |
 | `src/lib/types/`                     | Тип ответа сессии                                                                                                       |
 | `src/lib/components/structure/`      | Header, navigation, loading screen                                                                                      |
 | `src/lib/components/ui/`             | Базовые кнопки и loader                                                                                                 |
+| `src/lib/components/shared/`         | RarityLabel и UnitFrame — метка редкости и рамка юнита                                                                  |
 | `src/styles/`, `src/app.css`         | Тема, типографика и стили интерфейса                                                                                    |
 | `static/`                            | Статические файлы                                                                                                       |
-| `../../packages/shared/src/`         | Общие игровые вычисления и типы rarity/status                                                                           |
+| `../../packages/shared/src/`         | Общие игровые вычисления, типы rarity/status, каталог скинов и генератор имён юнитов                                    |
 
 ## Вход и посещения
 
@@ -37,8 +39,10 @@ Production-вход начинается командой `/login` в лично
 не считаются. Решение о 24 часах и доставке принадлежит серверу, таймера рассылки
 на клиенте нет.
 
-Поле `name` обязательно в `UnitListItem`; сервер генерирует `Капибара #<id>`,
-максимум 20 символов. Текущий интерфейс показывает имя, но не редактирует его.
+Поле `name` обязательно в `UnitListItem`; сервер генерирует его функцией
+`generateUnitName()` из `packages/shared` (случайное английское имя с никнеймом),
+максимум 20 символов. Текущий интерфейс имя не редактирует; в игроковых экранах
+оно не показывается, появляется только на странице manage после выдачи юнита.
 
 Vite dev gate при недоступном API пропускает HTML для работы над вёрсткой — это
 существующий режим разработки. Он не предоставляет действующую серверную сессию.

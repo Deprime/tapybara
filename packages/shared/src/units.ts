@@ -103,11 +103,13 @@ export const getCollectableClicks = (
 
 /**
  * harvest_at after `collected` points are clicked off the stack.
- * The stack remainder (accrued - collected) and the fractional progress
- * toward the next point both survive; only the time earned beyond the cap is
- * discarded. A plain `harvest_at + collected * period` is correct only while
- * the stack is uncapped — for a capped stack it would let the excess elapsed
- * time instantly refill the stack after harvest.
+ * The stack remainder (accrued - collected) survives; while the stack is
+ * uncapped, the fractional progress toward the next point survives too.
+ * From a CAPPED stack the elapsed time beyond max_stack periods earned
+ * nothing — including its sub-period phase — so collecting there restarts
+ * accrual from now instead of surfacing a leftover phase.
+ * A plain `harvest_at + collected * period` is also wrong for capped
+ * stacks: the excess elapsed time would instantly refill the stack.
  */
 export function getNextHarvestAt(
   params: UnitParams,
@@ -117,6 +119,7 @@ export function getNextHarvestAt(
 ): number {
   const period = getPeriodSeconds(params);
   const accrued = getAccruedPoints(params, harvest_at, now);
+  if (accrued === params.max_stack) return now - (accrued - collected) * period;
   const remainder = Math.max(0, now - harvest_at) % period;
   return now - remainder - (accrued - collected) * period;
 }

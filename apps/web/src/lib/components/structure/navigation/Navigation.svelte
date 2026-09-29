@@ -77,7 +77,9 @@
       <li class="w-full p-1">
         <a
           href={nav.href}
-          class="flex w-22 flex-col items-center justify-center rounded-xl px-2 py-1 transition-colors"
+          class="flex flex-col items-center justify-center rounded-xl py-1 transition-colors"
+          class:w-17={navs.length === 5}
+          class:w-22={navs.length !== 5}
           class:text-slate-500={!nav.active}
           class:text-indigo-700={nav.active}
           class:bg-white={nav.active}

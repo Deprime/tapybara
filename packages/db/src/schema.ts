@@ -59,7 +59,6 @@ export const units = mysqlTable(
       .default('base'),
     exp: int('exp').notNull().default(0),
     balance_sol: decimal('balance_sol', { precision: 12, scale: 2 }).notNull().default('0'),
-    points: int('points').notNull().default(0),
     status: mysqlEnum('status', ['harvest', 'pre_party', 'party', 'staking'])
       .notNull()
       .default('harvest'),

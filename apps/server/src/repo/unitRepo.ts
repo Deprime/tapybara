@@ -72,7 +72,6 @@ export const unitRepo = {
     const patch: Partial<typeof units.$inferInsert> = {
       harvest_at: getNextHarvestAt(params, unit.harvest_at, now, allowed),
       balance_sol: (Number(unit.balance_sol) + allowed * params.reward_per_point).toFixed(2),
-      points: unit.points + allowed,
       updated_at: now
     };
     if (params.exp_to_next_level !== null) {
