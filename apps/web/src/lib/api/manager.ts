@@ -6,9 +6,9 @@ const PREFIX = '/api/manager';
 /** User row as returned by GET /api/manager/users. */
 export type ManagerUserListItem = {
   id: number;
-  telegramId: number;
+  telegram_id: number;
   username: string;
-  balanceSol: number;
+  balance_sol: number;
 };
 
 /** Unit created by POST /api/manager/users/:id/units. */
@@ -16,7 +16,7 @@ export type ManagerUnit = {
   id: number;
   name: string;
   rarity: UnitRarity;
-  skinUuid: string;
+  skin_uuid: string;
 };
 
 const managerApi = {
@@ -39,8 +39,8 @@ const managerApi = {
   /**
    * Grant the user a fresh base-rarity unit with a random base skin
    */
-  createUnit: (userId: number) => {
-    const url = `${PREFIX}/users/${userId}/units`;
+  createUnit: (user_id: number) => {
+    const url = `${PREFIX}/users/${user_id}/units`;
     return http.post(url).json<ManagerUnit>();
   }
 };

@@ -26,9 +26,9 @@ type Unit = {
   level: number;
   exp: number;
   status: 'harvest' | 'pre_party' | 'party';
-  harvestAt: number;
-  pausedAt: number | null;
-  partyUntil: number | null;
+  harvest_at: number;
+  paused_at: number | null;
+  party_until: number | null;
 };
 
 const COOP_MIN = 4 * 60;
@@ -36,15 +36,15 @@ const SOLO_MIN = 12 * 60;
 
 function simulate(intervalMin: number, partyMin: number) {
   let nextId = 1;
-  const mk = (rIdx: number, harvestAt: number): Unit => ({
+  const mk = (rIdx: number, harvest_at: number): Unit => ({
     id: nextId++,
     rIdx,
     level: 1,
     exp: 0,
     status: 'harvest',
-    harvestAt,
-    pausedAt: null,
-    partyUntil: null
+    harvest_at,
+    paused_at: null,
+    party_until: null
   });
 
   const fleet: Unit[] = Array.from({ length: 16 }, () => mk(0, 0)); // free first stacks
@@ -59,13 +59,13 @@ function simulate(intervalMin: number, partyMin: number) {
   while (!done()) {
     // 1. complete due parties (fold the frozen gap back into harvest_at)
     for (const u of fleet) {
-      if (u.status === 'party' && u.partyUntil !== null && u.partyUntil <= t) {
+      if (u.status === 'party' && u.party_until !== null && u.party_until <= t) {
         u.level += 1;
         u.exp = 0;
         u.status = 'harvest';
-        u.harvestAt += t - (u.pausedAt ?? t);
-        u.pausedAt = null;
-        u.partyUntil = null;
+        u.harvest_at += t - (u.paused_at ?? t);
+        u.paused_at = null;
+        u.party_until = null;
       }
     }
 
@@ -90,18 +90,18 @@ function simulate(intervalMin: number, partyMin: number) {
     for (const u of fleet) {
       if (u.status !== 'harvest') continue;
       const p = getUnitParams(UNIT_RARITIES[u.rIdx], u.level);
-      let ready = Math.min(p.maxStack, Math.floor((t - u.harvestAt) / p.minutesPerPoint));
+      let ready = Math.min(p.max_stack, Math.floor((t - u.harvest_at) / p.minutes_per_point));
       while (ready > 0 && u.status === 'harvest') {
-        sol += p.rewardPerPoint;
+        sol += p.reward_per_point;
         clicks += 1;
         visitClicks += 1;
-        u.harvestAt += p.minutesPerPoint;
+        u.harvest_at += p.minutes_per_point;
         ready -= 1;
-        if (p.expToNextLevel !== null) {
+        if (p.exp_to_next_level !== null) {
           u.exp += 1;
-          if (u.exp >= p.expToNextLevel) {
+          if (u.exp >= p.exp_to_next_level) {
             u.status = 'pre_party';
-            u.pausedAt = t;
+            u.paused_at = t;
           }
         }
       }
@@ -112,7 +112,7 @@ function simulate(intervalMin: number, partyMin: number) {
     for (const u of fleet) {
       if (u.status === 'pre_party') {
         u.status = 'party';
-        u.partyUntil = t + partyMin;
+        u.party_until = t + partyMin;
       }
     }
 

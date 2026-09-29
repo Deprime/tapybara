@@ -5,12 +5,12 @@ const PREFIX = '/api/referrals';
 /** Referral row joined with the invited user's profile, as returned by GET /api/referrals. */
 export type ReferralDto = {
   id: number;
-  referrerId: number;
-  refereeId: number;
-  createdAt: number;
-  claimedAt: number;
-  refereeUsername: string;
-  refereeTelegramId: number;
+  referrer_id: number;
+  referee_id: number;
+  created_at: number;
+  claimed_at: number;
+  referee_username: string;
+  referee_telegram_id: number;
 };
 
 const referralsApi = {

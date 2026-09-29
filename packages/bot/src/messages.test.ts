@@ -8,10 +8,10 @@ test('login links point to the token exchange route and encode the token', () =>
 });
 
 test('balance includes both user balances and every named unit within message limits', () => {
-  const user = { balance: '123.45', balanceSol: '6.78' };
+  const user = { balance: '123.45', balance_sol: '6.78' };
   const units = Array.from({ length: 300 }, (_, i) => ({
     name: `Капибара #${i + 1}`,
-    balanceSol: '12.34'
+    balance_sol: '12.34'
   }));
   const messages = balanceMessages(user, units);
   expect(messages.length).toBeGreaterThan(1);
@@ -20,7 +20,7 @@ test('balance includes both user balances and every named unit within message li
   for (const message of messages) expect(message.length).toBeLessThanOrEqual(4096);
   const lines = messages.join('\n').split('\n');
   for (const unit of units) {
-    expect(lines.filter((line) => line === `${unit.name} — ${unit.balanceSol} SOL`)).toHaveLength(
+    expect(lines.filter((line) => line === `${unit.name} — ${unit.balance_sol} SOL`)).toHaveLength(
       1
     );
   }

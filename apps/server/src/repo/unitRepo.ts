@@ -16,17 +16,17 @@ export const unitRepo = {
    * right after the insert; harvest_at keeps the 0 schema default so the first
    * visit already has a full stack to click.
    */
-  async createForUser(userId: number, skinUuid: string): Promise<Unit> {
+  async createForUser(user_id: number, skin_uuid: string): Promise<Unit> {
     const ts = Math.floor(Date.now() / 1000);
     const { id } = await db.transaction(async (tx) => {
       const [row] = await tx.insert(units).values({
         uuid: randomUUID(),
         name: 'Капибара',
-        userId,
-        skinUuid,
+        user_id,
+        skin_uuid,
         rarity: 'base',
-        createdAt: ts,
-        updatedAt: ts
+        created_at: ts,
+        updated_at: ts
       });
       await tx
         .update(units)
@@ -37,8 +37,8 @@ export const unitRepo = {
     return (await this.getById(id))!;
   },
 
-  getByUserId(userId: number): Promise<Unit[]> {
-    return db.select().from(units).where(eq(units.userId, userId)).orderBy(units.id);
+  getByUserId(user_id: number): Promise<Unit[]> {
+    return db.select().from(units).where(eq(units.user_id, user_id)).orderBy(units.id);
   },
 
   getById(id: number): Promise<Unit | null> {
@@ -51,11 +51,11 @@ export const unitRepo = {
   },
 
   /** Fetch a unit while asserting it belongs to the given owner. */
-  getByIdAndUserId(id: number, userId: number): Promise<Unit | null> {
+  getByIdAndUserId(id: number, user_id: number): Promise<Unit | null> {
     return db
       .select()
       .from(units)
-      .where(and(eq(units.id, id), eq(units.userId, userId)))
+      .where(and(eq(units.id, id), eq(units.user_id, user_id)))
       .limit(1)
       .then(([row]) => row ?? null);
   },
@@ -65,26 +65,26 @@ export const unitRepo = {
    * server time is authoritative and only the count matters. Extra clicks are
    * clamped by the shared accrual formula, so the cap cannot be bypassed.
    */
-  async collect(unitId: number, userId: number, clicks: number[]): Promise<void> {
-    const unit = await this.getByIdAndUserId(unitId, userId);
+  async collect(unit_id: number, user_id: number, clicks: number[]): Promise<void> {
+    const unit = await this.getByIdAndUserId(unit_id, user_id);
     if (!unit) throw new HTTPException(404, { message: 'unit not found' });
     if (unit.status !== 'harvest') throw new HTTPException(400, { message: 'unit is busy' });
 
     const params = getUnitParams(unit.rarity, unit.level);
     const now = Math.floor(Date.now() / 1000);
-    const allowed = getCollectableClicks(params, unit.harvestAt, now, clicks.length);
+    const allowed = getCollectableClicks(params, unit.harvest_at, now, clicks.length);
     if (allowed <= 0) throw new HTTPException(400, { message: 'no points ready' });
 
     const patch: Partial<typeof units.$inferInsert> = {
-      harvestAt: unit.harvestAt + allowed * getPeriodSeconds(params),
-      balanceSol: (Number(unit.balanceSol) + allowed * params.rewardPerPoint).toFixed(2),
+      harvest_at: unit.harvest_at + allowed * getPeriodSeconds(params),
+      balance_sol: (Number(unit.balance_sol) + allowed * params.reward_per_point).toFixed(2),
       points: unit.points + allowed,
-      updatedAt: now
+      updated_at: now
     };
-    if (params.expToNextLevel !== null) {
-      const exp = Math.min(unit.exp + allowed * EXP_PER_CLICK, params.expToNextLevel);
+    if (params.exp_to_next_level !== null) {
+      const exp = Math.min(unit.exp + allowed * EXP_PER_CLICK, params.exp_to_next_level);
       patch.exp = exp;
-      if (exp >= params.expToNextLevel) {
+      if (exp >= params.exp_to_next_level) {
         // The level-up itself arrives with the party mechanic; freezing the
         // accrual comes with it too — until then harvest_at keeps ticking.
         patch.status = 'pre_party';

@@ -13,7 +13,7 @@ const meDto = (user: User) => ({
   id: user.id,
   username: user.username,
   balance: Number(user.balance),
-  balanceSol: Number(user.balanceSol),
+  balance_sol: Number(user.balance_sol),
   role: getUserRole(user)
 });
 

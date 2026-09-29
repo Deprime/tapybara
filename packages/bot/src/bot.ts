@@ -32,7 +32,7 @@ export const createBot = (token: string) => {
   const requireUser = async (fromId: number | undefined): Promise<User | null> => {
     if (!fromId) return null;
     const user = await findUserByTelegramId(fromId);
-    if (!user || user.blockedAt) return null;
+    if (!user || user.blocked_at) return null;
     return user;
   };
 

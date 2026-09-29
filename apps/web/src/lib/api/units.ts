@@ -6,15 +6,16 @@ const PREFIX = '/api/units';
 /** Unit row as returned by GET /api/units and POST /:id/collect. */
 export type UnitListItem = {
   id: number;
+  skin_uuid: string;
   name: string;
   level: number;
   rarity: UnitRarity;
   status: UnitStatus;
   exp: number;
-  balanceSol: number;
+  balance_sol: number;
   points: number;
   /** Unix seconds of the last harvest. */
-  harvestAt: number;
+  harvest_at: number;
 };
 
 const unitsApi = {
@@ -29,8 +30,8 @@ const unitsApi = {
   /**
    * Collect clicks for one unit; responds with the refreshed unit list
    */
-  collect: (unitId: number, clicks: number[]) => {
-    const url = `${PREFIX}/${unitId}/collect`;
+  collect: (unit_id: number, clicks: number[]) => {
+    const url = `${PREFIX}/${unit_id}/collect`;
     return http.post(url, { json: { clicks } }).json<UnitListItem[]>();
   }
 };

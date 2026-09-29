@@ -73,7 +73,7 @@
       <p class="text-xl">😒1</p>
       <div class="flex gap-4 text-sm">
         <span>💰 Баланс: <b>{me.balance.toFixed(2)}</b></span>
-        <span>🪙 SOL: <b>{me.balanceSol.toFixed(2)}</b></span>
+        <span>🪙 SOL: <b>{me.balance_sol.toFixed(2)}</b></span>
       </div>
 
       <p class="mt-3 mb-1 text-sm font-medium text-gray-600">Юниты</p>
@@ -83,7 +83,7 @@
         <ul class="space-y-1 text-sm">
           {#each myUnits as u (u.id)}
             <li>
-              #{u.id} · {u.rarity} · lvl {u.level} · {u.status} — {u.balanceSol.toFixed(2)} SOL
+              #{u.id} · {u.rarity} · lvl {u.level} · {u.status} — {u.balance_sol.toFixed(2)} SOL
             </li>
           {/each}
         </ul>

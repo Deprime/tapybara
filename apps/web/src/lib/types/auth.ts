@@ -5,6 +5,6 @@ export type SessionResponse = {
   id: number;
   username: string;
   balance: number;
-  balanceSol: number;
+  balance_sol: number;
   role: UserRole;
 };

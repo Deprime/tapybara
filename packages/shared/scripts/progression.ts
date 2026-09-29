@@ -5,11 +5,11 @@
 // - progression is linear: rarity in order, levels 1..5; reaching L5 of a
 //   non-final rarity instantly becomes L1 of the next rarity (its upgrade
 //   mechanic is not implemented yet);
-// - every click: +1 exp, +rewardPerPoint SOL of the current stage;
+// - every click: +1 exp, +reward_per_point SOL of the current stage;
 // - exp resets on every level-up (no overshoot);
 // - the player clicks the whole accrued stack on every visit;
-// - points produced beyond maxStack between visits are DISCARDED
-//   (harvest_at catches up to t - maxStack * minutesPerPoint);
+// - points produced beyond max_stack between visits are DISCARDED
+//   (harvest_at catches up to t - max_stack * minutes_per_point);
 // - harvest_at starts at 0 (unix epoch) — the first visit has a full stack.
 //
 // Run: bun packages/shared/scripts/progression.ts
@@ -24,22 +24,22 @@ function simulate(intervalMin: number) {
   let exp = 0;
   let sol = 0;
   let clicks = 0;
-  let harvestAt = 0;
+  let harvest_at = 0;
   const t0 = 1e9; // arbitrary "now" in unix minutes
   let t = t0;
 
   while (true) {
     let p = getUnitParams(UNIT_RARITIES[rIdx], level);
-    const ready = Math.floor((t - harvestAt) / p.minutesPerPoint);
-    let accrued = Math.min(p.maxStack, ready);
+    const ready = Math.floor((t - harvest_at) / p.minutes_per_point);
+    let accrued = Math.min(p.max_stack, ready);
 
     while (accrued > 0) {
       if (rIdx === LAST && level === 5) return { days: (t - t0) / 1440, sol, clicks };
-      sol += p.rewardPerPoint;
+      sol += p.reward_per_point;
       clicks += 1;
       exp += 1;
       accrued -= 1;
-      if (p.expToNextLevel !== null && exp >= p.expToNextLevel) {
+      if (p.exp_to_next_level !== null && exp >= p.exp_to_next_level) {
         exp = 0;
         level += 1;
         if (level === 5 && rIdx < LAST) {
@@ -51,9 +51,9 @@ function simulate(intervalMin: number) {
     }
 
     if (ready > 0) {
-      harvestAt = Math.max(
-        harvestAt + Math.min(ready, p.maxStack) * p.minutesPerPoint,
-        t - p.maxStack * p.minutesPerPoint
+      harvest_at = Math.max(
+        harvest_at + Math.min(ready, p.max_stack) * p.minutes_per_point,
+        t - p.max_stack * p.minutes_per_point
       );
     }
     t += intervalMin;
@@ -84,8 +84,8 @@ for (const [name, interval] of scenarios) {
 // Endgame income at legendary L5: production is 1 point per 40 min = 36/day;
 // two visits a day already collect it all (18 x 2 < stack 19), one visit caps at 19.
 const p5 = getUnitParams('legendary', 5);
-const full = ((24 * 60) / p5.minutesPerPoint) * p5.rewardPerPoint;
-const once = Math.min(p5.maxStack, Math.floor(1440 / p5.minutesPerPoint)) * p5.rewardPerPoint;
+const full = ((24 * 60) / p5.minutes_per_point) * p5.reward_per_point;
+const once = Math.min(p5.max_stack, Math.floor(1440 / p5.minutes_per_point)) * p5.reward_per_point;
 console.log(
   `legendary L5 доход: ${full.toFixed(2)} SOL/день (2+ входа), ${once.toFixed(2)} SOL/день (1 вход)`
 );

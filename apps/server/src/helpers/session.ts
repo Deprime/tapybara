@@ -7,13 +7,13 @@ import { getUnixTimestamp } from './datetime';
 export const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 export const SESSION_COOKIE = 'sid';
 
-export async function createSession(userId: number): Promise<string> {
+export async function createSession(user_id: number): Promise<string> {
   const sid = randomBytes(32).toString('base64url');
   const values = {
-    userId,
-    tokenHash: sha256(sid),
-    createdAt: getUnixTimestamp(),
-    expiresAt: getUnixTimestamp() + SESSION_TTL_SECONDS
+    user_id,
+    token_hash: sha256(sid),
+    created_at: getUnixTimestamp(),
+    expires_at: getUnixTimestamp() + SESSION_TTL_SECONDS
   };
   // Upsert: user_id is UNIQUE, so a new login atomically replaces the single
   // existing session — the previous device's cookie stops resolving.
@@ -27,13 +27,13 @@ export async function resolveSession(sid: string | undefined): Promise<User | nu
     const [row] = await db
       .select({ user: users })
       .from(sessions)
-      .innerJoin(users, eq(sessions.userId, users.id))
-      .where(and(eq(sessions.tokenHash, sha256(sid)), gt(sessions.expiresAt, getUnixTimestamp())))
+      .innerJoin(users, eq(sessions.user_id, users.id))
+      .where(and(eq(sessions.token_hash, sha256(sid)), gt(sessions.expires_at, getUnixTimestamp())))
       .limit(1);
     if (!row) return null;
-    if (row.user.blockedAt) {
+    if (row.user.blocked_at) {
       // Banned users lose every session at once.
-      await db.delete(sessions).where(eq(sessions.userId, row.user.id));
+      await db.delete(sessions).where(eq(sessions.user_id, row.user.id));
       return null;
     }
     return row.user;
@@ -44,10 +44,10 @@ export async function resolveSession(sid: string | undefined): Promise<User | nu
 }
 
 export const deleteSessionBySid = (sid: string) =>
-  db.delete(sessions).where(eq(sessions.tokenHash, sha256(sid)));
+  db.delete(sessions).where(eq(sessions.token_hash, sha256(sid)));
 
 /** Sweep of expired one-time login tokens and server-side sessions. */
 export const cleanupExpired = async () => {
-  await db.delete(authTokens).where(lt(authTokens.expiresAt, getUnixTimestamp()));
-  await db.delete(sessions).where(lt(sessions.expiresAt, getUnixTimestamp()));
+  await db.delete(authTokens).where(lt(authTokens.expires_at, getUnixTimestamp()));
+  await db.delete(sessions).where(lt(sessions.expires_at, getUnixTimestamp()));
 };

@@ -11,15 +11,15 @@ export const rewardSetSchema = z.record(z.unknown());
 
 export const alertSchema = z.object({
   id: z.number().int().positive(),
-  typeId: z.enum(ALERT_TYPES),
-  userId: z.number().int().positive(),
+  type_id: z.enum(ALERT_TYPES),
+  user_id: z.number().int().positive(),
   metadata: z.record(z.unknown()).nullable(),
   rewards: rewardSetSchema.nullable(),
   title: z.string().nullable(),
   description: z.string().nullable(),
-  claimedAt: z.number().nullable(),
-  createdAt: z.number(),
-  updatedAt: z.number()
+  claimed_at: z.number().nullable(),
+  created_at: z.number(),
+  updated_at: z.number()
 });
 
 export type AlertDto = z.infer<typeof alertSchema>;

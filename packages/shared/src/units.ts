@@ -19,46 +19,46 @@ export const EXP_PER_CLICK = 1;
 
 /**
  * Level-1 seeds per rarity. Everything else is derived by getUnitParams:
- * - secondsPerPoint DROPS by 20s per level (higher levels accumulate faster);
- * - rewardPerPoint grows linearly with level and jumps with rarity;
- * - expToNextLevel doubles every level;
- * - maxStack gets +1 every 2 levels (on top of the rarity seed).
+ * - minutes_per_point DROPS by 20s per level (higher levels accumulate faster);
+ * - reward_per_point grows linearly with level and jumps with rarity;
+ * - exp_to_next_level doubles every level;
+ * - max_stack gets +1 every 2 levels (on top of the rarity seed).
  */
 type RaritySeeds = {
-  minutesPerPoint: number;
-  rewardPerPoint: number;
-  expToNextLevel: number;
-  maxStack: number;
+  minutes_per_point: number;
+  reward_per_point: number;
+  exp_to_next_level: number;
+  max_stack: number;
 };
 
 /**
- * maxStack seeds follow the rarity chain: each rarity's L1 = previous rarity's
+ * max_stack seeds follow the rarity chain: each rarity's L1 = previous rarity's
  * L5 (seed + 2 from level steps) + 1 for the new rarity, i.e. +3 per tier:
  * base L5 = 7 → uncommon L1 = 8 → uncommon L5 = 10 → rare L1 = 11 → ...
  *
- * base expToNextLevel is the onboarding tune: full stack of 5 points × 1 exp
+ * base exp_to_next_level is the onboarding tune: full stack of 5 points × 1 exp
  * per click × 4 visits = 20 exp → level 2. Upper rarities are tuned so that a
  * player visiting ~4 times a day reaches legendary L5 in about 4 months.
  */
 export const UNIT_SEEDS: Record<UnitRarity, RaritySeeds> = {
-  base: { minutesPerPoint: 20, rewardPerPoint: 0.01, expToNextLevel: 20, maxStack: 5 },
-  uncommon: { minutesPerPoint: 20, rewardPerPoint: 0.02, expToNextLevel: 50, maxStack: 8 },
-  rare: { minutesPerPoint: 20, rewardPerPoint: 0.04, expToNextLevel: 75, maxStack: 11 },
-  epic: { minutesPerPoint: 20, rewardPerPoint: 0.08, expToNextLevel: 110, maxStack: 14 },
-  legendary: { minutesPerPoint: 20, rewardPerPoint: 0.16, expToNextLevel: 160, maxStack: 17 }
+  base: { minutes_per_point: 20, reward_per_point: 0.01, exp_to_next_level: 20, max_stack: 5 },
+  uncommon: { minutes_per_point: 20, reward_per_point: 0.02, exp_to_next_level: 50, max_stack: 8 },
+  rare: { minutes_per_point: 20, reward_per_point: 0.04, exp_to_next_level: 75, max_stack: 11 },
+  epic: { minutes_per_point: 20, reward_per_point: 0.08, exp_to_next_level: 110, max_stack: 14 },
+  legendary: { minutes_per_point: 20, reward_per_point: 0.16, exp_to_next_level: 160, max_stack: 17 }
 };
 
 export type UnitParams = {
   rarity: UnitRarity;
   level: number;
   /** Minutes to accumulate one point at this level. */
-  minutesPerPoint: number;
+  minutes_per_point: number;
   /** SOL credited to balance_sol per clicked point. */
-  rewardPerPoint: number;
+  reward_per_point: number;
   /** Max points held in the stack. */
-  maxStack: number;
+  max_stack: number;
   /** Exp required to reach the next level; null at max level. */
-  expToNextLevel: number | null;
+  exp_to_next_level: number | null;
 };
 
 export function getUnitParams(rarity: UnitRarity, level: number): UnitParams {
@@ -70,24 +70,24 @@ export function getUnitParams(rarity: UnitRarity, level: number): UnitParams {
     rarity,
     level: lvl,
     // 20 minutes at L1, minus 20 seconds per level: 20:00 → 19:40 → … → 18:40
-    minutesPerPoint: (seeds.minutesPerPoint * 60 - 20 * (lvl - 1)) / 60,
-    rewardPerPoint: Math.round(seeds.rewardPerPoint * lvl * 100) / 100,
-    maxStack: seeds.maxStack + Math.floor((lvl - 1) / 2),
-    expToNextLevel: isMax ? null : Math.round(seeds.expToNextLevel * 2 ** (lvl - 1))
+    minutes_per_point: (seeds.minutes_per_point * 60 - 20 * (lvl - 1)) / 60,
+    reward_per_point: Math.round(seeds.reward_per_point * lvl * 100) / 100,
+    max_stack: seeds.max_stack + Math.floor((lvl - 1) / 2),
+    exp_to_next_level: isMax ? null : Math.round(seeds.exp_to_next_level * 2 ** (lvl - 1))
   };
 }
 
 /**
- * Points accumulated since harvestAt (unix seconds), capped by maxStack.
+ * Points accumulated since harvest_at (unix seconds), capped by max_stack.
  * Fractional progress toward the next point is discarded.
  */
-export function getAccruedPoints(params: UnitParams, harvestAt: number, now: number): number {
-  const elapsedMinutes = Math.max(0, now - harvestAt) / 60;
-  return Math.min(params.maxStack, Math.floor(elapsedMinutes / params.minutesPerPoint));
+export function getAccruedPoints(params: UnitParams, harvest_at: number, now: number): number {
+  const elapsedMinutes = Math.max(0, now - harvest_at) / 60;
+  return Math.min(params.max_stack, Math.floor(elapsedMinutes / params.minutes_per_point));
 }
 
 /** Whole seconds per point at this level (integer, same rounding on client and server). */
-export const getPeriodSeconds = (params: UnitParams) => Math.round(params.minutesPerPoint * 60);
+export const getPeriodSeconds = (params: UnitParams) => Math.round(params.minutes_per_point * 60);
 
 /**
  * How many of the requested clicks are actually allowed right now.
@@ -96,7 +96,7 @@ export const getPeriodSeconds = (params: UnitParams) => Math.round(params.minute
  */
 export const getCollectableClicks = (
   params: UnitParams,
-  harvestAt: number,
+  harvest_at: number,
   now: number,
   requested: number
-): number => Math.min(requested, getAccruedPoints(params, harvestAt, now));
+): number => Math.min(requested, getAccruedPoints(params, harvest_at, now));

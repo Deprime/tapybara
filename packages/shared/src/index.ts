@@ -8,7 +8,7 @@ export const itemSchema = z.object({
   id: z.number().int().positive(),
   title: z.string().min(1).max(200),
   done: z.boolean(),
-  createdAt: z.string()
+  created_at: z.string()
 });
 
 export const createItemSchema = z.object({

@@ -119,7 +119,7 @@ test.skipIf(process.env.MYSQL_INTEGRATION !== '1')(
       expect(unit.rarity).toBe('base');
       const { SKINS } = await import('@capyberries/shared');
       const baseSkinIds = SKINS.filter((s) => s.rarity === 'base').map((s) => s.id);
-      expect(baseSkinIds).toContain(unit.skinUuid);
+      expect(baseSkinIds).toContain(unit.skin_uuid);
       expect(await inactivityRepo.due(Number.MAX_SAFE_INTEGER, 0)).toEqual([]);
       const token = await issueAuthToken(user.id, 600);
       const login = await app.request(`/auth?token=${token}`);

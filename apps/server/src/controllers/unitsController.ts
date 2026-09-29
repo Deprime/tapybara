@@ -9,21 +9,10 @@ const unitsController = new Hono<SessionEnv>();
 unitsController.use('*', requireAuth);
 
 // Shared response shape for GET /api/units and POST /:id/collect: the client
-// needs level/rarity/exp/harvestAt to compute ready points with the same
+// needs level/rarity/exp/harvest_at to compute ready points with the same
 // shared formula the server validates clicks against.
-const listUnits = async (userId: number) => {
-  const rows = await unitRepo.getByUserId(userId);
-  return rows.map((u) => ({
-    id: u.id,
-    name: u.name,
-    level: u.level,
-    rarity: u.rarity,
-    status: u.status,
-    exp: u.exp,
-    balanceSol: Number(u.balanceSol),
-    points: u.points,
-    harvestAt: u.harvestAt
-  }));
+const listUnits = async (user_id: number) => {
+  return await unitRepo.getByUserId(user_id);
 };
 
 /** Units of the current session user. */

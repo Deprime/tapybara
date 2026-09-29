@@ -17,22 +17,22 @@ export const ensureDevUser = async (): Promise<User> => {
 
   if (!user) {
     await db.insert(users).values({
-      telegramId: DEV_TELEGRAM_ID,
+      telegram_id: DEV_TELEGRAM_ID,
       uuid: DEV_UUID,
       username: DEV_USERNAME,
-      createdAt: ts,
-      updatedAt: ts
+      created_at: ts,
+      updated_at: ts
     });
     [user] = await db.select().from(users).where(eq(users.username, DEV_USERNAME)).limit(1);
     // Same starting base unit as a real registration, so local dev mirrors prod.
     await unitRepo.createForUser(user.id, getRandomSkinId('base') ?? '');
-  } else if (user.telegramId !== DEV_TELEGRAM_ID || user.uuid !== DEV_UUID) {
+  } else if (user.telegram_id !== DEV_TELEGRAM_ID || user.uuid !== DEV_UUID) {
     // Normalize a row created before the fixture fields were fixed.
     await db
       .update(users)
-      .set({ telegramId: DEV_TELEGRAM_ID, uuid: DEV_UUID, updatedAt: ts })
+      .set({ telegram_id: DEV_TELEGRAM_ID, uuid: DEV_UUID, updated_at: ts })
       .where(eq(users.id, user.id));
-    user = { ...user, telegramId: DEV_TELEGRAM_ID, uuid: DEV_UUID };
+    user = { ...user, telegram_id: DEV_TELEGRAM_ID, uuid: DEV_UUID };
   }
 
   return user;

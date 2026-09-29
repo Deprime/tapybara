@@ -3,7 +3,9 @@ import type { ReferralDto } from '$lib/api/referrals';
 
 export type { ReferralDto };
 
-const { subscribe, set, update } = persisted<ReferralDto[]>('referrals', []);
+// Key is versioned: bump on shape changes so stale localStorage payloads
+// (e.g. pre-snake_case camelCase fields) are never hydrated.
+const { subscribe, set, update } = persisted<ReferralDto[]>('referrals:v2', []);
 const clear = () => set([]);
 
 const referralsStore = {

@@ -23,21 +23,21 @@ export function createInactivityJob(
     running = true;
     const cutoff = now() - INACTIVITY_SECONDS;
     try {
-      let afterId = 0;
+      let after_id = 0;
       while (!stopped) {
-        const candidates = await repo.due(cutoff, afterId);
+        const candidates = await repo.due(cutoff, after_id);
         if (!candidates.length) break;
         for (const user of candidates) {
           if (stopped) return;
-          afterId = user.id;
-          if (user.lastSeenAt === null || !(await repo.stillDue(user.id, user.lastSeenAt, cutoff)))
+          after_id = user.id;
+          if (user.last_seen_at === null || !(await repo.stillDue(user.id, user.last_seen_at, cutoff)))
             continue;
           try {
-            await sender.sendMessage(user.telegramId, REMINDER_TEXT);
+            await sender.sendMessage(user.telegram_id, REMINDER_TEXT);
           } catch (error) {
-            console.warn('inactivity_reminder_delivery_failed', { userId: user.id });
+            console.warn('inactivity_reminder_delivery_failed', { user_id: user.id });
             if (error instanceof TelegramDeliveryError && error.permanent) {
-              await repo.handled(user.id, user.lastSeenAt, now());
+              await repo.handled(user.id, user.last_seen_at, now());
             } else if (error instanceof TelegramDeliveryError && error.retryAfter > 0) {
               retryAt = now() + error.retryAfter;
               return;
@@ -46,7 +46,7 @@ export function createInactivityJob(
           }
           // Persist only after Telegram acknowledges. A crash before this write can
           // cause a retry; Telegram sendMessage has no idempotency key.
-          await repo.handled(user.id, user.lastSeenAt, now());
+          await repo.handled(user.id, user.last_seen_at, now());
         }
       }
     } catch {

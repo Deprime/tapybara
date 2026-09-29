@@ -6,7 +6,7 @@ import { ensureDevUser, DEV_USERNAME, DEV_TELEGRAM_ID } from '../mocks/devUser';
 const user = await ensureDevUser();
 const sid = await createSession(user.id);
 
-console.log(`Dev user: id=${user.id} username=${DEV_USERNAME} telegramId=${DEV_TELEGRAM_ID}`);
+console.log(`Dev user: id=${user.id} username=${DEV_USERNAME} telegram_id=${DEV_TELEGRAM_ID}`);
 console.log(
   `Session minted, valid for ${SESSION_TTL_SECONDS / 86400} days (replaces the previous one).`
 );

@@ -5,14 +5,14 @@ export const loginUrl = (
 
 /** Plain-text chunks stay below Telegram's 4096-character message limit. */
 export function balanceMessages(
-  user: { balance: string; balanceSol: string },
-  units: { name: string; balanceSol: string }[]
+  user: { balance: string; balance_sol: string },
+  units: { name: string; balance_sol: string }[]
 ): string[] {
   const messages: string[] = [];
-  let message = `💰 Баланс: ${user.balance}\n🪙 SOL: ${user.balanceSol}\n\nЮниты:`;
+  let message = `💰 Баланс: ${user.balance}\n🪙 SOL: ${user.balance_sol}\n\nЮниты:`;
   if (!units.length) return [message + '\nЮнитов нет'];
   for (const unit of units) {
-    const line = `\n${unit.name} — ${unit.balanceSol} SOL`;
+    const line = `\n${unit.name} — ${unit.balance_sol} SOL`;
     if (message.length + line.length > 4000) {
       messages.push(message);
       message = 'Юниты (продолжение):';

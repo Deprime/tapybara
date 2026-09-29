@@ -29,16 +29,16 @@ authPageController.get('/', async (c) => {
     const [tokenRow] = token
       ? await db.select().from(authTokens).where(eq(authTokens.token, token)).limit(1)
       : [];
-    if (!tokenRow || tokenRow.expiresAt <= getUnixTimestamp()) return unauthorizedPage(c);
+    if (!tokenRow || tokenRow.expires_at <= getUnixTimestamp()) return unauthorizedPage(c);
 
     // Atomic one-time consumption: only one racing request deletes the row.
     const [consumed] = await db
       .delete(authTokens)
-      .where(and(eq(authTokens.id, tokenRow.id), gt(authTokens.expiresAt, getUnixTimestamp())));
+      .where(and(eq(authTokens.id, tokenRow.id), gt(authTokens.expires_at, getUnixTimestamp())));
     if (consumed.affectedRows === 0) return unauthorizedPage(c);
 
-    const user = await userRepo.getById(tokenRow.userId);
-    if (!user || user.blockedAt) return unauthorizedPage(c);
+    const user = await userRepo.getById(tokenRow.user_id);
+    if (!user || user.blocked_at) return unauthorizedPage(c);
 
     const sid = await createSession(user.id);
     setCookie(c, SESSION_COOKIE, sid, {

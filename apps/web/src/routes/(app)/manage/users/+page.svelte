@@ -54,14 +54,14 @@
         >
           <span class="min-w-0">
             <b class="block truncate">{user.username}</b>
-            <span class="text-xs text-gray-400">{user.telegramId}</span>
+            <span class="text-xs text-gray-400">{user.telegram_id}</span>
           </span>
           <span class="flex items-center gap-2 whitespace-nowrap">
             {#if createdNames[user.id]}
               <span class="text-xs text-green-600">✓ {createdNames[user.id]}</span>
             {/if}
             <span class="flex items-center gap-1 font-bold text-amber-700">
-              {user.balanceSol.toFixed(2)}
+              {user.balance_sol.toFixed(2)}
               <img src="/solberry.png" alt="SOL" class="size-6" />
             </span>
             <UButton size="sm" loading={pendingId === user.id} onclick={() => createUnit(user)}>

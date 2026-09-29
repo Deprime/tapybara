@@ -21,7 +21,7 @@
       <div class="flex items-center gap-1 rounded-full bg-amber-200 py-1 pr-3 pl-2">
         <img src="/solberry.png" alt="Solana" class="size-6 object-contain" />
         <span class="font-secondary text-sm font-bold text-amber-700">
-          {$userStore.balanceSol}
+          {$userStore.balance_sol}
         </span>
       </div>
     {/if}

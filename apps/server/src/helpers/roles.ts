@@ -11,5 +11,5 @@ export const ADMIN_TELEGRAM_IDS: readonly number[] = [
 export type UserRole = 'admin' | 'player';
 
 /** Virtual user field: not stored in the DB, derived from the admin list above. */
-export const getUserRole = (user: Pick<User, 'telegramId'>): UserRole =>
-  ADMIN_TELEGRAM_IDS.includes(user.telegramId) ? 'admin' : 'player';
+export const getUserRole = (user: Pick<User, 'telegram_id'>): UserRole =>
+  ADMIN_TELEGRAM_IDS.includes(user.telegram_id) ? 'admin' : 'player';
