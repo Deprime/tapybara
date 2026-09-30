@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
+  import { Tween } from 'svelte/motion';
   import { fly } from 'svelte/transition';
   import { useDebounce } from 'runed';
   import useEmblaCarousel from 'embla-carousel-svelte';
@@ -41,11 +42,21 @@
     activeUnit ? getUnitParams(activeUnit.rarity, activeUnit.level) : null
   );
 
+  const animatedBalance = new Tween(0, {
+    duration: 250
+  });
+
   // Live clock (unix seconds) so the stack counter accrues in real time
   let now = $state(Math.floor(Date.now() / 1000));
   $effect(() => {
     const timer = setInterval(() => (now = Math.floor(Date.now() / 1000)), 1000);
     return () => clearInterval(timer);
+  });
+
+  $effect(() => {
+    if (activeUnit) {
+      animatedBalance.set(activeUnit.balance_sol);
+    }
   });
 
   // Click collection: each tap applies the server's collect math for one
@@ -189,7 +200,7 @@
         <span class="absolute top-1 left-2 flex items-center gap-1">
           <img src="/solberry.png" alt="solberry" class="size-5 object-contain" />
           <span class="font-secondary text-xs font-bold text-amber-700">
-            {activeUnit.balance_sol.toFixed(2)}
+            {animatedBalance.current.toFixed(2)}
           </span>
         </span>
       {/if}
@@ -217,18 +228,23 @@
     {#if activeUnit && activeUnitParams}
       <footer class="flex h-7 w-full items-center gap-0.5 rounded-lg bg-gray-400 p-0.5">
         {#if activeUnit.status === 'harvest'}
-          {#each Array.from({ length: activeUnitParams.max_stack }), index (index)}
-            <div class="h-6 w-full overflow-hidden rounded-lg bg-slate-200">
-              <div
-                id="stack-indicator-{index}"
-                class="h-full rounded-lg bg-purple-500 transition-[width] duration-300 {100 <=
-                stackSegmentWidth(activeUnit, index)
-                  ? 'opacity-100'
-                  : 'opacity-75'}"
-                style="width: {stackSegmentWidth(activeUnit, index)}%"
-              ></div>
-            </div>
-          {/each}
+          <div
+            class="flex h-7 w-full items-center gap-0.5"
+            in:fly={{ duration: 300, y: 5, opacity: 0 }}
+          >
+            {#each Array.from({ length: activeUnitParams.max_stack }), index (index)}
+              <div class="h-6 w-full overflow-hidden rounded-lg bg-slate-50">
+                <div
+                  id="stack-indicator-{index}"
+                  class="h-full rounded bg-purple-500 transition-[width] duration-300 {100 <=
+                  stackSegmentWidth(activeUnit, index)
+                    ? 'opacity-100'
+                    : 'opacity-75'}"
+                  style="width: {stackSegmentWidth(activeUnit, index)}%"
+                ></div>
+              </div>
+            {/each}
+          </div>
         {/if}
         {#if activeUnit.status === 'pre_party'}
           <div
